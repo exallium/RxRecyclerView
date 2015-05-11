@@ -13,7 +13,7 @@ import rx.subjects.PublishSubject;
  * Currently Supported operations are:
  *  * Add a new item (INSERT)
  *  * Modify an existing item (CHANGE)
- *  * Remove an item (DELETE)
+ *  * Remove an item (REMOVE)
  *
  *  When the Controller (Activity or Fragment) is finished, it is good to send an OnComplete signal down through the
  *  Observer chain.  This should be done in your onDestroy method.  Note that this is done automatically by ViewObservable
