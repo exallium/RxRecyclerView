@@ -1,5 +1,6 @@
 package com.exallium.rxrecyclerview.lib;
 
+import android.support.v4.util.SimpleArrayMap;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import rx.Observable;
@@ -17,10 +18,6 @@ import rx.subjects.PublishSubject;
  *  When the Controller (Activity or Fragment) is finished, it is good to send an OnComplete signal down through the
  *  Observer chain.  This should be done in your onDestroy method.  Note that this is done automatically by ViewObservable
  *
- *  The container is completely left up to the implementor.  You'll want something that is fast, and has easy access to
- *  Values via position or Key.  I suggest LongSparseArray, if you happen to be able to key things based off a Long
- *  (This is the case with a lot of DB managers, like Sugar)
- *
  * @param <K>   The type of Keys used for the items.
  * @param <V>   The kind of items we are adapting
  * @param <VH>  Custom View Holder
@@ -30,6 +27,7 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
     private static final String TAG = RxRecyclerViewAdapter.class.getSimpleName();
 
     private final PublishSubject<RxAdapterEvent<K, V>> eventPublisher = PublishSubject.create();
+    private final SimpleArrayMap<K, V> container = new SimpleArrayMap<>();
 
     /**
      * Takes an observable of RxAdapterEvents.  See example in MainActivity in sample app.
@@ -49,6 +47,18 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
             Log.d(TAG, "An error happened in " + clazz.getSimpleName(), e);
     }
 
+    @Override
+    public void onBindViewHolder(VH holder, int position) {
+        onBindViewHolder(holder, container.keyAt(position), container.valueAt(position));
+    }
+
+    public abstract void onBindViewHolder(VH holder, K key, V value);
+
+    @Override
+    public int getItemCount() {
+        return container.size();
+    }
+
     /**
      * Allows for an Adapter to act upon it's own behalf.
      * If you want to customized this publisher, override this method and cache
@@ -58,34 +68,6 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
     protected PublishSubject<RxAdapterEvent<K, V>> getEventPublisher() {
         return eventPublisher;
     }
-
-    /**
-     * Get the position in the adapter for the item keyed by Key
-     * @param key The Key to look up
-     * @return The position in the adapter of Key
-     */
-    protected abstract int getPositionByKey(K key);
-
-    /**
-     * Set the Value of the given position to the passed value
-     * @param position The position to replace the item of
-     * @param value The value to set the position to
-     */
-    protected abstract void setValueOfPosition(int position, V value);
-
-    /**
-     * Remove the given position from the list
-     * @param position The position to remove
-     */
-    protected abstract void removeValueAt(int position);
-
-    /**
-     * Inserts a new item into the adapter.  Assumes this is added to the end of the list.
-     * @param key The Key to add
-     * @param value The Value to add
-     * @return the position of the new value
-     */
-    protected abstract int insertKeyValuePair(K key, V value);
 
     private class RxChangeSubscriber extends Subscriber<RxAdapterEvent<K, V>> {
 
@@ -101,8 +83,8 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
 
         @Override
         public void onNext(RxAdapterEvent<K, V> rxChangeEvent) {
-            int position = getPositionByKey(rxChangeEvent.getKey());
-            setValueOfPosition(position, rxChangeEvent.getValue());
+            int position = container.indexOfKey(rxChangeEvent.getKey());
+            container.put(rxChangeEvent.getKey(), rxChangeEvent.getValue());
             notifyItemChanged(position);
         }
     }
@@ -121,7 +103,8 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
 
         @Override
         public void onNext(RxAdapterEvent<K, V> rxInsertEvent) {
-            int position = insertKeyValuePair(rxInsertEvent.getKey(), rxInsertEvent.getValue());
+            container.put(rxInsertEvent.getKey(), rxInsertEvent.getValue());
+            int position = container.indexOfKey(rxInsertEvent.getKey());
             notifyItemInserted(position);
         }
     }
@@ -140,8 +123,8 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
 
         @Override
         public void onNext(RxAdapterEvent<K, V> rxRemoveEvent) {
-            int position = getPositionByKey(rxRemoveEvent.getKey());
-            removeValueAt(position);
+            int position = container.indexOfKey(rxRemoveEvent.getKey());
+            container.removeAt(position);
             notifyItemRemoved(position);
         }
     }

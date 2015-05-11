@@ -1,20 +1,17 @@
 package com.exallium.rxrecyclerview.app;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.LongSparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import com.exallium.rxrecyclerview.lib.RxAdapterEvent;
 import com.exallium.rxrecyclerview.lib.RxRecyclerViewAdapter;
-import com.exallium.rxrecyclerview.lib.RxSimpleAdapter;
 import rx.Observable;
 import rx.subjects.PublishSubject;
-import rx.subjects.Subject;
 
 import java.lang.ref.WeakReference;
 
-public class Adapter extends RxSimpleAdapter<String, Adapter.ViewHolder> {
+public class Adapter extends RxRecyclerViewAdapter<Long, String, Adapter.ViewHolder> {
 
     public Adapter(Observable<RxAdapterEvent<Long, String>> observable) {
         super(observable);
