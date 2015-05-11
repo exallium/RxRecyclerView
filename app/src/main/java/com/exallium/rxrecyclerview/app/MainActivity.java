@@ -1,6 +1,7 @@
 package com.exallium.rxrecyclerview.app;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +13,7 @@ import com.exallium.rxrecyclerview.lib.RxAdapterEvent;
 import rx.Observable;
 import rx.android.view.OnClickEvent;
 import rx.android.view.ViewObservable;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.subjects.PublishSubject;
@@ -28,6 +30,9 @@ public class MainActivity extends Activity {
 
     @InjectView(R.id.addButton)
     Button addButton;
+
+    @InjectView(R.id.anotherActivityButton)
+    Button anotherActivityButton;
 
     private Observable<RxAdapterEvent<Long, String>> adapterEventObservable;
 
@@ -72,6 +77,15 @@ public class MainActivity extends Activity {
 
         Adapter adapter = new Adapter(adapterEventObservable);
         recyclerView.setAdapter(adapter);
+
+        ViewObservable.clicks(anotherActivityButton).forEach(new Action1<OnClickEvent>() {
+            @Override
+            public void call(OnClickEvent onClickEvent) {
+                Intent i = new Intent();
+                i.setClass(MainActivity.this, AnotherActivity.class);
+                startActivity(i);
+            }
+        });
     }
 
     @Override
