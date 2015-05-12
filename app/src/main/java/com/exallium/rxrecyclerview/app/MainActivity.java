@@ -29,10 +29,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.MotionEvent;
 import android.widget.Button;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import com.exallium.rxrecyclerview.app.model.ObjectModel;
 import com.exallium.rxrecyclerview.lib.RxAdapterEvent;
 import rx.Observable;
 import rx.android.view.OnClickEvent;
@@ -85,7 +85,7 @@ public class MainActivity extends Activity {
         Observable<RxAdapterEvent<Long, String>> createEvents = Observable.zip(addClicks, idAggregator, new Func2<OnClickEvent, Long, RxAdapterEvent<Long, String>>() {
             @Override
             public RxAdapterEvent<Long, String> call(OnClickEvent onClickEvent, Long key) {
-                return new RxAdapterEvent<>(RxAdapterEvent.TYPE.INSERT, key, "Item");
+                return new RxAdapterEvent<>(RxAdapterEvent.TYPE.ADD, key, "Item");
             }
         });
 
@@ -93,13 +93,14 @@ public class MainActivity extends Activity {
             @Override
             public RxAdapterEvent<Long, String> call(OnClickEvent onClickEvent) {
                 // send a new event saying position 0 string becomes random number
-                return new RxAdapterEvent<>(RxAdapterEvent.TYPE.CHANGE, 1L, Integer.toString(random.nextInt()));
+                return new RxAdapterEvent<>(RxAdapterEvent.TYPE.ADD, 1L, Integer.toString(random.nextInt()));
             }
         });
 
-        adapterEventObservable = Observable.merge(createEvents, updateEvents);
+        PublishSubject<RxAdapterEvent<Long, String>> eventPublishSubject = ObjectModel.getInstance().getEventPublishSubject();
+        Observable.merge(createEvents, updateEvents).subscribe(eventPublishSubject);
 
-        Adapter adapter = new Adapter(adapterEventObservable);
+        Adapter adapter = new Adapter(eventPublishSubject);
         recyclerView.setAdapter(adapter);
 
         ViewObservable.clicks(anotherActivityButton).forEach(new Action1<OnClickEvent>() {
@@ -112,8 +113,4 @@ public class MainActivity extends Activity {
         });
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
 }

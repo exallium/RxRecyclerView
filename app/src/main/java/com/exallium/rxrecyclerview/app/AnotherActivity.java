@@ -26,11 +26,14 @@ package com.exallium.rxrecyclerview.app;
 
 import android.app.Activity;
 import android.os.Bundle;
+import com.exallium.rxrecyclerview.app.model.ObjectModel;
+import com.exallium.rxrecyclerview.lib.RxAdapterEvent;
 
 public class AnotherActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_another);
+        ObjectModel.getInstance().emit(new RxAdapterEvent<>(RxAdapterEvent.TYPE.ADD, 100L, "Another Item"));
     }
 }

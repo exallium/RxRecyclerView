@@ -35,8 +35,7 @@ import rx.subjects.PublishSubject;
 /**
  * Reactive View Adapter for RecyclerView
  * Currently Supported operations are:
- *  * Add a new item (INSERT)
- *  * Modify an existing item (CHANGE)
+ *  * Modify an existing item or Add a new Item (ADD)
  *  * Remove an item (REMOVE)
  *
  *  When the Controller (Activity or Fragment) is finished, it is good to send an OnComplete signal down through the
@@ -61,8 +60,7 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
      */
     public RxRecyclerViewAdapter(Observable<RxAdapterEvent<K, V>> observable) {
         Observable<RxAdapterEvent<K, V>> androidThreadObservable = observable.mergeWith(eventPublisher).subscribeOn(AndroidSchedulers.mainThread());
-        androidThreadObservable.filter(new RxAdapterEvent.TypeFilter<K, V>(RxAdapterEvent.TYPE.CHANGE)).subscribe(new RxChangeSubscriber());
-        androidThreadObservable.filter(new RxAdapterEvent.TypeFilter<K, V>(RxAdapterEvent.TYPE.INSERT)).subscribe(new RxInsertSubscriber());
+        androidThreadObservable.filter(new RxAdapterEvent.TypeFilter<K, V>(RxAdapterEvent.TYPE.ADD)).subscribe(new RxAddSubscriber());
         androidThreadObservable.filter(new RxAdapterEvent.TypeFilter<K, V>(RxAdapterEvent.TYPE.REMOVE)).subscribe(new RxRemoveSubscriber());
     }
 
@@ -93,7 +91,7 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
         return eventPublisher;
     }
 
-    private class RxChangeSubscriber extends Subscriber<RxAdapterEvent<K, V>> {
+    private class RxAddSubscriber extends Subscriber<RxAdapterEvent<K, V>> {
 
         @Override
         public void onCompleted() {
@@ -109,27 +107,10 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
         public void onNext(RxAdapterEvent<K, V> rxChangeEvent) {
             int position = container.indexOfKey(rxChangeEvent.getKey());
             container.put(rxChangeEvent.getKey(), rxChangeEvent.getValue());
-            notifyItemChanged(position);
-        }
-    }
-
-    private class RxInsertSubscriber extends Subscriber<RxAdapterEvent<K, V>> {
-
-        @Override
-        public void onCompleted() {
-            unsubscribe();
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            RxRecyclerViewAdapter.this.onError(this.getClass(), e);
-        }
-
-        @Override
-        public void onNext(RxAdapterEvent<K, V> rxInsertEvent) {
-            container.put(rxInsertEvent.getKey(), rxInsertEvent.getValue());
-            int position = container.indexOfKey(rxInsertEvent.getKey());
-            notifyItemInserted(position);
+            if (position >= 0)
+                notifyItemChanged(position);
+            else
+                notifyItemInserted(container.indexOfKey(rxChangeEvent.getKey()));
         }
     }
 

@@ -22,58 +22,31 @@
  * THE SOFTWARE.
  */
 
-package com.exallium.rxrecyclerview.lib;
+package com.exallium.rxrecyclerview.app.model;
 
-import rx.functions.Func1;
+import com.exallium.rxrecyclerview.lib.RxAdapterEvent;
+import rx.subjects.PublishSubject;
 
 /**
- * Event for adapter change.
- * @param <K> The Key for this object (such as an ID number)
- * @param <V> The Value for this object (The object itself)
+ * Singleton to act as our Model layer.
  */
-public class RxAdapterEvent<K, V> {
+public final class ObjectModel {
 
-    public static final class TypeFilter<K, V> implements Func1<RxAdapterEvent<K, V>, Boolean> {
+    private static ObjectModel instance;
 
-        private final TYPE type;
-
-        public TypeFilter(TYPE type) {
-            this.type = type;
-        }
-
-        @Override
-        public Boolean call(RxAdapterEvent<K, V> rxAdapterEvent) {
-            return rxAdapterEvent.getType() == type;
-        }
+    public static ObjectModel getInstance() {
+        if (instance == null)
+            instance = new ObjectModel();
+        return instance;
     }
 
+    private final PublishSubject<RxAdapterEvent<Long, String>> eventPublishSubject = PublishSubject.create();
 
-    public enum TYPE {
-        ADD,
-        REMOVE,
-        UNKNOWN
+    public final PublishSubject<RxAdapterEvent<Long, String>> getEventPublishSubject() {
+        return eventPublishSubject;
     }
 
-    private final TYPE type;
-    private final K key;
-    private final V value;
-
-    public RxAdapterEvent(TYPE type, K key, V value) {
-        this.type = type;
-        this.key = key;
-        this.value = value;
+    public final void emit(RxAdapterEvent<Long, String> event) {
+        eventPublishSubject.onNext(event);
     }
-
-    public TYPE getType() {
-        return type;
-    }
-
-    public K getKey() {
-        return key;
-    }
-
-    public V getValue() {
-        return value;
-    }
-
 }
