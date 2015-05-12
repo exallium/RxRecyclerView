@@ -63,20 +63,20 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
             return dataMap.get(keyList.get(position));
         }
 
-        public synchronized int indexOfKey(final K key) {
+        public int indexOfKey(final K key) {
             return keyList.indexOf(key);
         }
 
-        public synchronized int size() {
+        public int size() {
             return keyList.size();
         }
 
-        public synchronized void remove(RxAdapterEvent<K, V> event) {
+        public void remove(RxAdapterEvent<K, V> event) {
             keyList.remove(event.getKey());
             dataMap.remove(event.getKey());
         }
 
-        public synchronized void put(RxAdapterEvent<K, V> event) {
+        public void put(RxAdapterEvent<K, V> event) {
             int p = indexOfKey(event.getKey());
             if (p >= 0) {
                 keyList.remove(event.getKey());
