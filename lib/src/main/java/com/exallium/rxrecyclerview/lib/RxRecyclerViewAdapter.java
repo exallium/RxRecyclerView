@@ -32,6 +32,9 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.PublishSubject;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+
 /**
  * Reactive View Adapter for RecyclerView
  * Currently Supported operations are:
@@ -50,7 +53,44 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
     private static final String TAG = RxRecyclerViewAdapter.class.getSimpleName();
 
     private final PublishSubject<RxAdapterEvent<K, V>> eventPublisher = PublishSubject.create();
-    private final SimpleArrayMap<K, V> container = new SimpleArrayMap<>();
+
+    private final Container container = new Container();
+    private final class Container {
+        private final SimpleArrayMap<K, Integer> positionalMap = new SimpleArrayMap<>();
+        private final ArrayList<RxAdapterEvent<K,V>> eventArrayList = new ArrayList<>();
+
+        public RxAdapterEvent<K, V> get(int position) {
+            return eventArrayList.get(position);
+        }
+
+        public int indexOfKey(K key) {
+            Integer v = positionalMap.get(key);
+            return v != null ? v : -1;
+        }
+
+        public int size() {
+            return eventArrayList.size();
+        }
+
+        public void remove(RxAdapterEvent<K, V> event) {
+            int p = indexOfKey(event.getKey());
+            if (p >= 0) {
+                positionalMap.removeAt(p);
+                eventArrayList.remove(p);
+            }
+        }
+
+        public void put(RxAdapterEvent<K, V> event) {
+            int p = indexOfKey(event.getKey());
+            if (p >= 0) {
+                eventArrayList.add(p, event);
+                eventArrayList.remove(p + 1);
+            } else {
+                eventArrayList.add(event);
+                positionalMap.put(event.getKey(), eventArrayList.size() - 1);
+            }
+        }
+    }
 
     /**
      * Takes an observable of RxAdapterEvents.  See example in MainActivity in sample app.
@@ -71,7 +111,8 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
 
     @Override
     public void onBindViewHolder(VH holder, int position) {
-        onBindViewHolder(holder, container.keyAt(position), container.valueAt(position));
+        RxAdapterEvent<K,V> rxAdapterEvent = container.get(position);
+        onBindViewHolder(holder, rxAdapterEvent.getKey(), rxAdapterEvent.getValue());
     }
 
     public abstract void onBindViewHolder(VH holder, K key, V value);
@@ -106,7 +147,7 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
         @Override
         public void onNext(RxAdapterEvent<K, V> rxChangeEvent) {
             int position = container.indexOfKey(rxChangeEvent.getKey());
-            container.put(rxChangeEvent.getKey(), rxChangeEvent.getValue());
+            container.put(rxChangeEvent);
             if (position >= 0)
                 notifyItemChanged(position);
             else
@@ -129,7 +170,7 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
         @Override
         public void onNext(RxAdapterEvent<K, V> rxRemoveEvent) {
             int position = container.indexOfKey(rxRemoveEvent.getKey());
-            container.removeAt(position);
+            container.remove(rxRemoveEvent);
             notifyItemRemoved(position);
         }
     }
