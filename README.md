@@ -23,3 +23,7 @@ create and update items!
 ## Examples
 
 Are available in the app module!
+
+## Licensing
+
+This work is (C) under the MIT License.
