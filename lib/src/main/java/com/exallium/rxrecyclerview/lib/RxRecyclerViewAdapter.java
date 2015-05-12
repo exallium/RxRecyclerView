@@ -24,8 +24,8 @@
 
 package com.exallium.rxrecyclerview.lib;
 
-import android.support.v4.util.SimpleArrayMap;
 import android.support.v7.widget.RecyclerView;
+import android.util.ArrayMap;
 import android.util.Log;
 import rx.Observable;
 import rx.Subscriber;
@@ -33,7 +33,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.PublishSubject;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 
 /**
  * Reactive View Adapter for RecyclerView
@@ -56,39 +56,35 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
 
     private final Container container = new Container();
     private final class Container {
-        private final SimpleArrayMap<K, Integer> positionalMap = new SimpleArrayMap<>();
-        private final ArrayList<RxAdapterEvent<K,V>> eventArrayList = new ArrayList<>();
+        private final HashMap<K, RxAdapterEvent<K, V>> dataMap = new HashMap<>();
+        private final ArrayList<K> keyList = new ArrayList<>();
 
         public RxAdapterEvent<K, V> get(int position) {
-            return eventArrayList.get(position);
+            return dataMap.get(keyList.get(position));
         }
 
-        public int indexOfKey(K key) {
-            Integer v = positionalMap.get(key);
-            return v != null ? v : -1;
+        public synchronized int indexOfKey(final K key) {
+            return keyList.indexOf(key);
         }
 
-        public int size() {
-            return eventArrayList.size();
+        public synchronized int size() {
+            return keyList.size();
         }
 
-        public void remove(RxAdapterEvent<K, V> event) {
+        public synchronized void remove(RxAdapterEvent<K, V> event) {
+            keyList.remove(event.getKey());
+            dataMap.remove(event.getKey());
+        }
+
+        public synchronized void put(RxAdapterEvent<K, V> event) {
             int p = indexOfKey(event.getKey());
             if (p >= 0) {
-                positionalMap.removeAt(p);
-                eventArrayList.remove(p);
-            }
-        }
-
-        public void put(RxAdapterEvent<K, V> event) {
-            int p = indexOfKey(event.getKey());
-            if (p >= 0) {
-                eventArrayList.add(p, event);
-                eventArrayList.remove(p + 1);
+                keyList.remove(event.getKey());
+                keyList.add(p, event.getKey());
             } else {
-                eventArrayList.add(event);
-                positionalMap.put(event.getKey(), eventArrayList.size() - 1);
+                keyList.add(event.getKey());
             }
+            dataMap.put(event.getKey(), event);
         }
     }
 
@@ -105,8 +101,7 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
     }
 
     private void onError(Class<?> clazz, Throwable e) {
-        if (BuildConfig.DEBUG)
-            Log.d(TAG, "An error happened in " + clazz.getSimpleName(), e);
+        Log.d(TAG, "An error happened in " + clazz.getSimpleName(), e);
     }
 
     @Override
@@ -170,8 +165,10 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
         @Override
         public void onNext(RxAdapterEvent<K, V> rxRemoveEvent) {
             int position = container.indexOfKey(rxRemoveEvent.getKey());
-            container.remove(rxRemoveEvent);
-            notifyItemRemoved(position);
+            if (position >= 0) {
+                container.remove(rxRemoveEvent);
+                notifyItemRemoved(position);
+            }
         }
     }
 }
