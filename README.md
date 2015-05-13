@@ -27,3 +27,19 @@ Are available in the app module!
 ## Licensing
 
 This work is (C) under the MIT License.
+
+## Gradle
+
+This has been released on Bintray
+
+```groovy
+repositories {
+    maven {
+        url  "http://dl.bintray.com/exallium/maven" 
+    }
+}
+
+dependencies {
+    compile 'com.exallium.rxrecyclerview:lib:1.0'
+}
+```
