@@ -52,8 +52,6 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
 
     private static final String TAG = RxRecyclerViewAdapter.class.getSimpleName();
 
-    private final PublishSubject<RxAdapterEvent<K, V>> eventPublisher = PublishSubject.create();
-
     private final Container container = new Container();
     private final class Container {
         private final HashMap<K, RxAdapterEvent<K, V>> dataMap = new HashMap<>();
@@ -95,7 +93,7 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
      * @param observable The Stream of Events to observe and react to
      */
     public RxRecyclerViewAdapter(Observable<RxAdapterEvent<K, V>> observable) {
-        Observable<RxAdapterEvent<K, V>> androidThreadObservable = observable.mergeWith(eventPublisher).observeOn(AndroidSchedulers.mainThread());
+        Observable<RxAdapterEvent<K, V>> androidThreadObservable = observable.observeOn(AndroidSchedulers.mainThread());
         androidThreadObservable.filter(new RxAdapterEvent.TypeFilter(RxAdapterEvent.TYPE.ADD)).subscribe(new RxAddSubscriber());
         androidThreadObservable.filter(new RxAdapterEvent.TypeFilter(RxAdapterEvent.TYPE.REMOVE)).subscribe(new RxRemoveSubscriber());
     }
@@ -105,26 +103,22 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
     }
 
     @Override
-    public void onBindViewHolder(VH holder, int position) {
+    public final void onBindViewHolder(VH holder, int position) {
         RxAdapterEvent<K,V> rxAdapterEvent = container.get(position);
         onBindViewHolder(holder, rxAdapterEvent.getKey(), rxAdapterEvent.getValue());
     }
 
+    /**
+     * Binds a ViewHolder to the given Key/Value pair
+     * @param holder    The ViewHolder to bind to
+     * @param key       The Key of the data to bind
+     * @param value     The data to bind
+     */
     public abstract void onBindViewHolder(VH holder, K key, V value);
 
     @Override
     public int getItemCount() {
         return container.size();
-    }
-
-    /**
-     * Allows for an Adapter to act upon it's own behalf.
-     * If you want to customized this publisher, override this method and cache
-     * your result.
-     * @return The internal event publisher.
-     */
-    protected PublishSubject<RxAdapterEvent<K, V>> getEventPublisher() {
-        return eventPublisher;
     }
 
     private class RxAddSubscriber extends Subscriber<RxAdapterEvent<K, V>> {
