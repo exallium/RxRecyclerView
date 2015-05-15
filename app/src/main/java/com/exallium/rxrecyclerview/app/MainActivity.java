@@ -29,10 +29,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.widget.Button;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.exallium.rxrecyclerview.app.model.ObjectModel;
+import com.exallium.rxrecyclerview.app.rx.transformers.IdAggregator;
 import com.exallium.rxrecyclerview.lib.RxAdapterEvent;
 import rx.Observable;
 import rx.android.view.OnClickEvent;
@@ -70,17 +72,7 @@ public class MainActivity extends Activity {
         final Random random = new Random(System.currentTimeMillis());
 
         Observable<OnClickEvent> addClicks = ViewObservable.clicks(addButton);
-        Observable<Long> idAggregator = addClicks.map(new Func1<OnClickEvent, Long>() {
-            @Override
-            public Long call(OnClickEvent onClickEvent) {
-                return 1L;
-            }
-        }).scan(new Func2<Long, Long, Long>() {
-            @Override
-            public Long call(Long l1, Long l2) {
-                return l1 + l2;
-            }
-        });
+        Observable<Long> idAggregator = addClicks.compose(new IdAggregator<OnClickEvent>());
 
         Observable<RxAdapterEvent<Long, String>> createEvents = Observable.zip(addClicks, idAggregator, new Func2<OnClickEvent, Long, RxAdapterEvent<Long, String>>() {
             @Override
