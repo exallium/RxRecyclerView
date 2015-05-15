@@ -39,8 +39,8 @@ public class IdAggregator<T> implements Observable.Transformer<T, Long> {
             }
         }).scan(new Func2<Long, Long, Long>() {
             @Override
-            public Long call(Long r, Long r2) {
-                return r + r2;
+            public Long call(Long accumulator, Long t2) {
+                return accumulator + t2;
             }
         });
     }
