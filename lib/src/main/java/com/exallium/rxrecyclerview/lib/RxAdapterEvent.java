@@ -36,7 +36,7 @@ import rx.functions.Func1;
  * here with Type, OR figure out the proper generics typing for the RX Java Methods to like your subscribers.
  *
  * You can listen to a custom subclass in your adapter constructor with observer.ofType(), or you can create a Filter
- * as I have done in this class an event's subtype against a type passed by constructor. (See RxRecyclerView.java for
+ * as I have done in this class an event's subtype against a type passed by constructor. (See RxRecyclerViewAdapter.java for
  * an example, and RxAdapterEvent.TypeFilter for an example)
  *
  * @param <K> The Key for this object (such as an ID number)
