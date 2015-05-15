@@ -27,7 +27,7 @@ package com.exallium.rxrecyclerview.lib;
 import rx.functions.Func1;
 
 /**
- * Event for adapter change.
+ * Immutable Event for adapter change.
  *
  * If you would like to extend this object, the recommended way is to define a subclass with TYPE UNKNOWN.  You can then
  * filter the incoming observable within your adapter for this subclass.  Since you are required to define your types
@@ -44,7 +44,10 @@ import rx.functions.Func1;
  */
 public class RxAdapterEvent<K, V> {
 
-    public static final class TypeFilter<K, V> implements Func1<RxAdapterEvent<K, V>, Boolean> {
+    /**
+     * Filter for RxAdapterEvents by Type.
+     */
+    public static final class TypeFilter implements Func1<RxAdapterEvent, Boolean> {
 
         private final TYPE type;
 
@@ -53,16 +56,16 @@ public class RxAdapterEvent<K, V> {
         }
 
         @Override
-        public Boolean call(RxAdapterEvent<K, V> rxAdapterEvent) {
+        public Boolean call(RxAdapterEvent rxAdapterEvent) {
             return rxAdapterEvent.getType() == type;
         }
     }
 
 
     public enum TYPE {
-        ADD,
-        REMOVE,
-        UNKNOWN
+        ADD,        // Used when Adding content to an RxRecyclerView
+        REMOVE,     // Used when Removing content from an RxRecyclerView
+        UNKNOWN     // Used for custom events
     }
 
     private final TYPE type;
@@ -75,14 +78,25 @@ public class RxAdapterEvent<K, V> {
         this.value = value;
     }
 
-    public TYPE getType() {
+    /**
+     * Returns the type of this event.  Finalized as this method is intended to be used
+     * outside of the bounds of the type parameters.
+     * @return The TYPE of this Event
+     */
+    public final TYPE getType() {
         return type;
     }
 
+    /**
+     * @return The Event's Key
+     */
     public K getKey() {
         return key;
     }
 
+    /**
+     * @return The Event's Value
+     */
     public V getValue() {
         return value;
     }

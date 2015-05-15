@@ -96,8 +96,8 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
      */
     public RxRecyclerViewAdapter(Observable<RxAdapterEvent<K, V>> observable) {
         Observable<RxAdapterEvent<K, V>> androidThreadObservable = observable.mergeWith(eventPublisher).observeOn(AndroidSchedulers.mainThread());
-        androidThreadObservable.filter(new RxAdapterEvent.TypeFilter<K, V>(RxAdapterEvent.TYPE.ADD)).subscribe(new RxAddSubscriber());
-        androidThreadObservable.filter(new RxAdapterEvent.TypeFilter<K, V>(RxAdapterEvent.TYPE.REMOVE)).subscribe(new RxRemoveSubscriber());
+        androidThreadObservable.filter(new RxAdapterEvent.TypeFilter(RxAdapterEvent.TYPE.ADD)).subscribe(new RxAddSubscriber());
+        androidThreadObservable.filter(new RxAdapterEvent.TypeFilter(RxAdapterEvent.TYPE.REMOVE)).subscribe(new RxRemoveSubscriber());
     }
 
     private void onError(Class<?> clazz, Throwable e) {
