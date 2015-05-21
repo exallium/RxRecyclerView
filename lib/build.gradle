@@ -91,6 +91,8 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.1.1'
     compile 'com.android.support:recyclerview-v7:22.1.1'
     compile 'io.reactivex:rxandroid:0.24.0'
+
+    testCompile 'junit:junit:4.12'
 }
 
 task sourcesJar(type: Jar) {
