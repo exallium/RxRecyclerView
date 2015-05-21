@@ -4,11 +4,12 @@ Crazy easy to use RecyclerView Adapter for Reactive Applications
 
 ## Interface
 
-* RxRecyclerViewAdapter.onCreateViewHolder is the same as RecyclerView
-* RxRecyclerViewAdapter.onBindViewHolder gives you the Key and Value of the item
+* ```RxRecyclerViewAdapter::onCreateViewHolder``` is the same as
+  ```RecyclerView.Adapter```
+* ```RxRecyclerViewAdapter::onBindViewHolder``` gives you the Key and Value of the item
   you're binding to.
-* RxAdapterEvent is Immutable and takes an RxAdapterEvent.TYPE, Key, and Value.
-* RxAdapterEvent also contains an UNKNOWN type and is overridable for custom
+* ```RxAdapterEvent<K,V>``` is Immutable and takes an ```RxAdapterEvent.TYPE```, Key, and Value.
+* ```RxAdapterEvent<K,V>``` also contains an UNKNOWN type and is overridable for custom
   processing.
 
 ## Creating an Adapter
