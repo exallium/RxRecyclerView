@@ -26,6 +26,7 @@ package com.exallium.rxrecyclerview.app;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -95,10 +96,9 @@ public class MainActivity extends Activity {
             }
         });
 
-        PublishSubject<RxAdapterEvent<Long, String>> eventPublishSubject = ObjectModel.getInstance().getEventPublishSubject();
-        Observable.merge(createEvents, updateEvents).subscribe(eventPublishSubject);
+        Observable.merge(createEvents, updateEvents).subscribe(ObjectModel.getInstance().getEventObserver());
 
-        Adapter adapter = new Adapter(eventPublishSubject, adapterComparator);
+        Adapter adapter = new Adapter(ObjectModel.getInstance().getEventObservable(), adapterComparator);
         recyclerView.setAdapter(adapter);
 
         ViewObservable.clicks(anotherActivityButton).forEach(new Action1<OnClickEvent>() {

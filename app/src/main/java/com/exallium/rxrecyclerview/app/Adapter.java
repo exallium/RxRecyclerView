@@ -69,7 +69,7 @@ public class Adapter extends RxRecyclerViewAdapter<Long, String, Adapter.ViewHol
 
         @Override
         public void onClick(View v) {
-            ObjectModel.getInstance().emit(new RxAdapterEvent<>(RxAdapterEvent.TYPE.REMOVE, key, value));
+            ObjectModel.getInstance().getEventObserver().onNext(new RxAdapterEvent<>(RxAdapterEvent.TYPE.REMOVE, key, value));
         }
     }
 }

@@ -34,6 +34,6 @@ public class AnotherActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_another);
-        ObjectModel.getInstance().emit(new RxAdapterEvent<>(RxAdapterEvent.TYPE.ADD, 100L, "Another Item"));
+        ObjectModel.getInstance().getEventObserver().onNext(new RxAdapterEvent<>(RxAdapterEvent.TYPE.ADD, 100L, "Another Item"));
     }
 }
