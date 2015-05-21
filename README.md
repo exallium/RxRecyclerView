@@ -19,7 +19,7 @@ data processing.  Please see my notes below.
 
 ## Sorting your stuff
 
-There is a constructor on RxRecyclerViewAdapter for handing in a comparator.
+There is a constructor on RxRecyclerViewAdapter for handing in a ```Comparator<RxAdapterEvent<K,V>>```.
 The default container will be handed this and insert items based off a binary
 search algorithm.  This was chosen because of it's high performance relative to
 the number of objects in the list, which scales O(log n) compared to an
@@ -35,7 +35,7 @@ binary sort algorithm would only take 5 iterations.
 If you need to do extra processing on your items AFTER they've gotten to the
 adapter, you can do so by implementing ```Container``` and passing it in via
 the right constructor.  If you want your container to be sortable, you should
-do that yourself, perhaps by passing it a comparator at construction like I 
+do that yourself, perhaps by passing it a ```Comparator``` at construction like I 
 have done with the default container.  Note, you likely shouldn't need to do
 this, and can probably just do your processing further up the event chain.
 
