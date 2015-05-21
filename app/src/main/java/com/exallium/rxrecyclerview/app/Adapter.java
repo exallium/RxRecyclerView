@@ -32,14 +32,13 @@ import com.exallium.rxrecyclerview.app.model.ObjectModel;
 import com.exallium.rxrecyclerview.lib.RxAdapterEvent;
 import com.exallium.rxrecyclerview.lib.RxRecyclerViewAdapter;
 import rx.Observable;
-import rx.subjects.PublishSubject;
 
-import java.lang.ref.WeakReference;
+import java.util.Comparator;
 
 public class Adapter extends RxRecyclerViewAdapter<Long, String, Adapter.ViewHolder> {
 
-    public Adapter(Observable<RxAdapterEvent<Long, String>> observable) {
-        super(observable);
+    public Adapter(Observable<RxAdapterEvent<Long, String>> observable, Comparator<RxAdapterEvent<Long, String>> comparator) {
+        super(observable, comparator);
     }
 
     @Override

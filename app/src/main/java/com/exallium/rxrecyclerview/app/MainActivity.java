@@ -44,6 +44,7 @@ import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.subjects.PublishSubject;
 
+import java.util.Comparator;
 import java.util.Random;
 
 public class MainActivity extends Activity {
@@ -60,7 +61,12 @@ public class MainActivity extends Activity {
     @InjectView(R.id.anotherActivityButton)
     Button anotherActivityButton;
 
-    private Observable<RxAdapterEvent<Long, String>> adapterEventObservable;
+    private final Comparator<RxAdapterEvent<Long, String>> adapterComparator = new Comparator<RxAdapterEvent<Long, String>>() {
+        @Override
+        public int compare(RxAdapterEvent<Long, String> lhs, RxAdapterEvent<Long, String> rhs) {
+            return -(lhs.getKey().compareTo(rhs.getKey()));
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +98,7 @@ public class MainActivity extends Activity {
         PublishSubject<RxAdapterEvent<Long, String>> eventPublishSubject = ObjectModel.getInstance().getEventPublishSubject();
         Observable.merge(createEvents, updateEvents).subscribe(eventPublishSubject);
 
-        Adapter adapter = new Adapter(eventPublishSubject);
+        Adapter adapter = new Adapter(eventPublishSubject, adapterComparator);
         recyclerView.setAdapter(adapter);
 
         ViewObservable.clicks(anotherActivityButton).forEach(new Action1<OnClickEvent>() {
