@@ -49,6 +49,9 @@ your Rx Chain before overriding this list.
 Are available in the app module!
 
 * Comparator example has been added (reverse sort by key)
+* Added a Key/Value map to hold items between screen rotations.  Note that the
+  ID accumulator will currently reset itself, so if items aren't being added,
+that's why.  They are, they just happen to be the exact same as the old ones.
 
 ## Licensing
 
