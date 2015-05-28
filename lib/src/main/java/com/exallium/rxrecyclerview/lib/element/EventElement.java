@@ -22,18 +22,43 @@
  * THE SOFTWARE.
  */
 
-package com.exallium.rxrecyclerview.app;
+package com.exallium.rxrecyclerview.lib.element;
 
-import android.app.Activity;
-import android.os.Bundle;
-import com.exallium.rxrecyclerview.app.model.ObjectModel;
+import com.exallium.rxrecyclerview.lib.GroupComparator;
 import com.exallium.rxrecyclerview.lib.event.Event;
 
-public class AnotherActivity extends Activity {
+public class EventElement<K, V> implements Element<Event<K, V>> {
+
+    private final Event<K, V> event;
+    private final GroupComparator<Event<K, V>> eventGroupComparator;
+
+    public EventElement(Event<K, V> event, GroupComparator<Event<K, V>> groupComparator) {
+        this.event = event;
+        this.eventGroupComparator = groupComparator;
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_another);
-        ObjectModel.getInstance().getEventObserver().onNext(new Event<>(Event.TYPE.ADD, 100L, "Another Item"));
+    public String getGroup() {
+        return eventGroupComparator.getGroupKey(event);
+    }
+
+    @Override
+    public int getViewType() {
+        return 0;
+    }
+
+    @Override
+    public Event<K, V> getData() {
+        return event;
+    }
+
+
+    @Override
+    public int compareTo(Element<Event<K, V>> another) {
+        int groupComparison = getGroup().compareTo(another.getGroup());
+        if (groupComparison != 0) {
+            return groupComparison;
+        }
+        return eventGroupComparator.compare(getData(), another.getData());
     }
 }

@@ -22,18 +22,10 @@
  * THE SOFTWARE.
  */
 
-package com.exallium.rxrecyclerview.app;
+package com.exallium.rxrecyclerview.lib.element;
 
-import android.app.Activity;
-import android.os.Bundle;
-import com.exallium.rxrecyclerview.app.model.ObjectModel;
-import com.exallium.rxrecyclerview.lib.event.Event;
-
-public class AnotherActivity extends Activity {
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_another);
-        ObjectModel.getInstance().getEventObserver().onNext(new Event<>(Event.TYPE.ADD, 100L, "Another Item"));
-    }
+public interface Element<D> extends Comparable<Element<D>> {
+    String getGroup();
+    int getViewType();
+    D getData();
 }

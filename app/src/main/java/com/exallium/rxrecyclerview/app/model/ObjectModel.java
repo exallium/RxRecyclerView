@@ -24,17 +24,15 @@
 
 package com.exallium.rxrecyclerview.app.model;
 
-import com.exallium.rxrecyclerview.lib.RxAdapterEvent;
+import com.exallium.rxrecyclerview.lib.event.Event;
 import rx.Observable;
 import rx.Observer;
-import rx.Subscriber;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subjects.PublishSubject;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -54,34 +52,34 @@ public final class ObjectModel {
     public Map<Long, String> itemMap = Collections.synchronizedMap(new LinkedHashMap<Long, String>());
 
     // When I get an item, I want to add it to my itemMap, and then transmit that item down the road.
-    private Observable<RxAdapterEvent<Long, String>> getEventCacheObservable() {
-        return Observable.from(itemMap.entrySet()).map(new Func1<Map.Entry<Long, String>, RxAdapterEvent<Long, String>>() {
+    private Observable<Event<Long, String>> getEventCacheObservable() {
+        return Observable.from(itemMap.entrySet()).map(new Func1<Map.Entry<Long, String>, Event<Long, String>>() {
             @Override
-            public RxAdapterEvent<Long, String> call(Map.Entry<Long, String> longStringEntry) {
-                return new RxAdapterEvent<>(RxAdapterEvent.TYPE.ADD, longStringEntry.getKey(), longStringEntry.getValue());
+            public Event<Long, String> call(Map.Entry<Long, String> longStringEntry) {
+                return new Event<>(Event.TYPE.ADD, longStringEntry.getKey(), longStringEntry.getValue());
             }
         });
     }
 
-    private final PublishSubject<RxAdapterEvent<Long, String>> eventPublishSubject = PublishSubject.create();
+    private final PublishSubject<Event<Long, String>> eventPublishSubject = PublishSubject.create();
 
-    public final Observable<RxAdapterEvent<Long, String>> getEventObservable() {
-        return getEventCacheObservable().mergeWith(eventPublishSubject.doOnNext(new Action1<RxAdapterEvent<Long, String>>() {
+    public final Observable<Event<Long, String>> getEventObservable() {
+        return getEventCacheObservable().mergeWith(eventPublishSubject.doOnNext(new Action1<Event<Long, String>>() {
             @Override
-            public void call(RxAdapterEvent<Long, String> longStringRxAdapterEvent) {
-                switch (longStringRxAdapterEvent.getType()) {
+            public void call(Event<Long, String> longStringEvent) {
+                switch (longStringEvent.getType()) {
                     case ADD:
-                        itemMap.put(longStringRxAdapterEvent.getKey(), longStringRxAdapterEvent.getValue());
+                        itemMap.put(longStringEvent.getKey(), longStringEvent.getValue());
                         break;
                     case REMOVE:
-                        itemMap.remove(longStringRxAdapterEvent.getKey());
+                        itemMap.remove(longStringEvent.getKey());
                         break;
                 }
             }
         }));
     }
 
-    public final Observer<RxAdapterEvent<Long, String>> getEventObserver() {
+    public final Observer<Event<Long, String>> getEventObserver() {
         return eventPublishSubject;
     }
 }

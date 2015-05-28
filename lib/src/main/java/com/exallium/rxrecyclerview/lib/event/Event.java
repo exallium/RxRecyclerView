@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package com.exallium.rxrecyclerview.lib;
+package com.exallium.rxrecyclerview.lib.event;
 
 import rx.functions.Func1;
 
@@ -42,25 +42,7 @@ import rx.functions.Func1;
  * @param <K> The Key for this object (such as an ID number)
  * @param <V> The Value for this object (The object itself)
  */
-public class RxAdapterEvent<K, V> {
-
-    /**
-     * Filter for RxAdapterEvents by Type.
-     */
-    public static final class TypeFilter implements Func1<RxAdapterEvent, Boolean> {
-
-        private final TYPE type;
-
-        public TypeFilter(TYPE type) {
-            this.type = type;
-        }
-
-        @Override
-        public Boolean call(RxAdapterEvent rxAdapterEvent) {
-            return rxAdapterEvent.getType() == type;
-        }
-    }
-
+public class Event<K, V> {
 
     public enum TYPE {
         ADD,        // Used when Adding content to an RxRecyclerView
@@ -72,7 +54,7 @@ public class RxAdapterEvent<K, V> {
     private final K key;
     private final V value;
 
-    public RxAdapterEvent(TYPE type, K key, V value) {
+    public Event(TYPE type, K key, V value) {
         this.type = type;
         this.key = key;
         this.value = value;

@@ -29,7 +29,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import com.exallium.rxrecyclerview.app.model.ObjectModel;
-import com.exallium.rxrecyclerview.lib.RxAdapterEvent;
+import com.exallium.rxrecyclerview.lib.element.Element;
+import com.exallium.rxrecyclerview.lib.element.EventElement;
+import com.exallium.rxrecyclerview.lib.event.Event;
 import com.exallium.rxrecyclerview.lib.RxRecyclerViewAdapter;
 import rx.Observable;
 
@@ -37,8 +39,13 @@ import java.util.Comparator;
 
 public class Adapter extends RxRecyclerViewAdapter<Long, String, Adapter.ViewHolder> {
 
-    public Adapter(Observable<RxAdapterEvent<Long, String>> observable, Comparator<RxAdapterEvent<Long, String>> comparator) {
-        super(observable, comparator);
+    public Adapter(Observable<EventElement<Long, String>> observable) {
+        super(observable);
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder holder, Element<Event<Long, String>> element) {
+        holder.onBind(element.getData().getKey(), element.getData().getValue());
     }
 
     @Override
@@ -46,10 +53,6 @@ public class Adapter extends RxRecyclerViewAdapter<Long, String, Adapter.ViewHol
         return new ViewHolder(new TextView(parent.getContext()));
     }
 
-    @Override
-    public void onBindViewHolder(ViewHolder holder, Long key, String value) {
-        holder.onBind(key, value);
-    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
@@ -69,7 +72,7 @@ public class Adapter extends RxRecyclerViewAdapter<Long, String, Adapter.ViewHol
 
         @Override
         public void onClick(View v) {
-            ObjectModel.getInstance().getEventObserver().onNext(new RxAdapterEvent<>(RxAdapterEvent.TYPE.REMOVE, key, value));
+            ObjectModel.getInstance().getEventObserver().onNext(new Event<>(Event.TYPE.REMOVE, key, value));
         }
     }
 }

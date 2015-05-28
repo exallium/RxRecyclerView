@@ -25,18 +25,15 @@
 package com.exallium.rxrecyclerview.lib;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.ArrayMap;
 import android.util.Log;
-import com.exallium.rxrecyclerview.lib.container.Container;
-import com.exallium.rxrecyclerview.lib.container.impl.DefaultContainer;
+import com.exallium.rxrecyclerview.lib.element.Element;
+import com.exallium.rxrecyclerview.lib.element.EventElement;
+import com.exallium.rxrecyclerview.lib.event.Event;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.subjects.PublishSubject;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.TreeSet;
 
 /**
  * Reactive View Adapter for RecyclerView
@@ -55,8 +52,7 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
 
     private static final String TAG = RxRecyclerViewAdapter.class.getSimpleName();
 
-    private final Container<K, V> container;
-
+    private final TreeSet<Element<Event<K, V>>> treeSet;
 
     /**
      * Takes an observable of RxAdapterEvents.  See example in MainActivity in sample app.
@@ -64,30 +60,10 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
      * can be listened for separately by the Programmer
      * @param observable The Stream of Events to observe and react to
      */
-    public RxRecyclerViewAdapter(Observable<RxAdapterEvent<K, V>> observable) {
-        this(observable, new DefaultContainer<K, V>());
-    }
-
-    /**
-     * Constructor that supports sorting of incoming events in the underlying container.
-     * Custom containers should set up their own sorting, and use the relevant constructor.
-     * @param observable        The Stream of Events to observe and react to
-     * @param eventComparator   A comparator that will be handed to the inner DefaultContainer
-     */
-    public RxRecyclerViewAdapter(Observable<RxAdapterEvent<K, V>> observable, Comparator<RxAdapterEvent<K, V>> eventComparator) {
-        this(observable, new DefaultContainer<>(eventComparator));
-    }
-
-    /**
-     * Constructor that supports handing of custom Container classes
-     * @param observable        The Stream of Events to observe and react to
-     * @param customContainer   A custom container that will hold the events.
-     */
-    public RxRecyclerViewAdapter(Observable<RxAdapterEvent<K, V>> observable, Container<K, V> customContainer) {
-        container = customContainer;
-        Observable<RxAdapterEvent<K, V>> androidThreadObservable = observable.observeOn(AndroidSchedulers.mainThread());
-        androidThreadObservable.filter(new RxAdapterEvent.TypeFilter(RxAdapterEvent.TYPE.ADD)).subscribe(new RxAddSubscriber());
-        androidThreadObservable.filter(new RxAdapterEvent.TypeFilter(RxAdapterEvent.TYPE.REMOVE)).subscribe(new RxRemoveSubscriber());
+    public RxRecyclerViewAdapter(Observable<EventElement<K, V>> observable) {
+        treeSet = new TreeSet<>();
+        Observable<EventElement<K, V>> androidThreadObservable = observable.observeOn(AndroidSchedulers.mainThread());
+        androidThreadObservable.subscribe(new RxSubscriber());
     }
 
     private void onError(Class<?> clazz, Throwable e) {
@@ -96,24 +72,32 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
 
     @Override
     public final void onBindViewHolder(VH holder, int position) {
-        RxAdapterEvent<K,V> rxAdapterEvent = container.get(position);
-        onBindViewHolder(holder, rxAdapterEvent.getKey(), rxAdapterEvent.getValue());
+        EventElement<K,V> element = getItemAt(position);
+        onBindViewHolder(holder, element);
     }
 
     /**
      * Binds a ViewHolder to the given Key/Value pair
      * @param holder    The ViewHolder to bind to
-     * @param key       The Key of the data to bind
-     * @param value     The data to bind
      */
-    public abstract void onBindViewHolder(VH holder, K key, V value);
+    public abstract void onBindViewHolder(VH holder, Element<Event<K, V>> element);
 
     @Override
     public int getItemCount() {
-        return container.size();
+        return treeSet.size();
     }
 
-    private class RxAddSubscriber extends Subscriber<RxAdapterEvent<K, V>> {
+    @Override
+    public int getItemViewType(int position) {
+        return getItemAt(position).getViewType();
+    }
+
+    // TODO: Performance
+    protected EventElement<K, V> getItemAt(int position) {
+        return (EventElement<K, V>) treeSet.toArray()[position];
+    }
+
+    private class RxSubscriber extends Subscriber<EventElement<K, V>> {
 
         @Override
         public void onCompleted() {
@@ -126,34 +110,21 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
         }
 
         @Override
-        public void onNext(RxAdapterEvent<K, V> rxChangeEvent) {
-            int position = container.indexOfKey(rxChangeEvent.getKey());
-            container.put(rxChangeEvent);
-            if (position >= 0)
-                notifyItemChanged(position);
-            else
-                notifyItemInserted(container.indexOfKey(rxChangeEvent.getKey()));
-        }
-    }
-
-    private class RxRemoveSubscriber extends Subscriber<RxAdapterEvent<K, V>> {
-
-        @Override
-        public void onCompleted() {
-            unsubscribe();
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            RxRecyclerViewAdapter.this.onError(this.getClass(), e);
-        }
-
-        @Override
-        public void onNext(RxAdapterEvent<K, V> rxRemoveEvent) {
-            int position = container.indexOfKey(rxRemoveEvent.getKey());
-            if (position >= 0) {
-                container.remove(rxRemoveEvent);
-                notifyItemRemoved(position);
+        public void onNext(EventElement<K, V> rxEvent) {
+            switch (rxEvent.getData().getType()) {
+                case ADD:
+                    if (treeSet.add(rxEvent)) {
+                        notifyItemInserted(treeSet.headSet(rxEvent).size());
+                    } else {
+                        notifyItemChanged(treeSet.headSet(rxEvent).size());
+                    }
+                    break;
+                case REMOVE:
+                    int index = treeSet.headSet(rxEvent).size();
+                    if (treeSet.remove(rxEvent)) {
+                        notifyItemRemoved(index);
+                    }
+                    break;
             }
         }
     }

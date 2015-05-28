@@ -22,18 +22,28 @@
  * THE SOFTWARE.
  */
 
-package com.exallium.rxrecyclerview.app;
+package com.exallium.rxrecyclerview.lib.element;
 
-import android.app.Activity;
-import android.os.Bundle;
-import com.exallium.rxrecyclerview.app.model.ObjectModel;
+import com.exallium.rxrecyclerview.lib.GroupComparator;
 import com.exallium.rxrecyclerview.lib.event.Event;
 
-public class AnotherActivity extends Activity {
+public class FooterElement<K, V> extends EventElement<K, V> {
+
+    public FooterElement(Event<K, V> event, GroupComparator<Event<K, V>> groupComparator) {
+        super(event, groupComparator);
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_another);
-        ObjectModel.getInstance().getEventObserver().onNext(new Event<>(Event.TYPE.ADD, 100L, "Another Item"));
+    public int getViewType() {
+        return 1;
+    }
+
+    @Override
+    public int compareTo(Element<Event<K, V>> another) {
+        int groupComparison = getGroup().compareTo(another.getGroup());
+        if (groupComparison != 0) {
+            return groupComparison;
+        }
+        return 1;
     }
 }

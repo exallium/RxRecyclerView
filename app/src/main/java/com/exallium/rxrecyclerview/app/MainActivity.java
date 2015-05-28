@@ -26,24 +26,23 @@ package com.exallium.rxrecyclerview.app;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.widget.Button;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.exallium.rxrecyclerview.app.model.ObjectModel;
 import com.exallium.rxrecyclerview.app.rx.transformers.IdAggregator;
-import com.exallium.rxrecyclerview.lib.RxAdapterEvent;
+import com.exallium.rxrecyclerview.lib.GroupComparator;
+import com.exallium.rxrecyclerview.lib.event.Event;
+import com.exallium.rxrecyclerview.lib.operators.ElementGenerationOperator;
 import rx.Observable;
 import rx.android.view.OnClickEvent;
 import rx.android.view.ViewObservable;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
-import rx.subjects.PublishSubject;
 
 import java.util.Comparator;
 import java.util.Random;
@@ -62,9 +61,14 @@ public class MainActivity extends Activity {
     @InjectView(R.id.anotherActivityButton)
     Button anotherActivityButton;
 
-    private final Comparator<RxAdapterEvent<Long, String>> adapterComparator = new Comparator<RxAdapterEvent<Long, String>>() {
+    private final GroupComparator<Event<Long, String>> adapterComparator = new GroupComparator<Event<Long, String>>() {
         @Override
-        public int compare(RxAdapterEvent<Long, String> lhs, RxAdapterEvent<Long, String> rhs) {
+        public String getGroupKey(Event<Long, String> longStringEvent) {
+            return longStringEvent.getKey().toString().substring(0,1);
+        }
+
+        @Override
+        public int compare(Event<Long, String> lhs, Event<Long, String> rhs) {
             return -(lhs.getKey().compareTo(rhs.getKey()));
         }
     };
@@ -81,24 +85,24 @@ public class MainActivity extends Activity {
         Observable<OnClickEvent> addClicks = ViewObservable.clicks(addButton);
         Observable<Long> idAggregator = addClicks.compose(new IdAggregator<OnClickEvent>());
 
-        Observable<RxAdapterEvent<Long, String>> createEvents = Observable.zip(addClicks, idAggregator, new Func2<OnClickEvent, Long, RxAdapterEvent<Long, String>>() {
+        Observable<Event<Long, String>> createEvents = Observable.zip(addClicks, idAggregator, new Func2<OnClickEvent, Long, Event<Long, String>>() {
             @Override
-            public RxAdapterEvent<Long, String> call(OnClickEvent onClickEvent, Long key) {
-                return new RxAdapterEvent<>(RxAdapterEvent.TYPE.ADD, key, "Item");
+            public Event<Long, String> call(OnClickEvent onClickEvent, Long key) {
+                return new Event<>(Event.TYPE.ADD, key, "Item");
             }
         });
 
-        Observable<RxAdapterEvent<Long, String>> updateEvents = ViewObservable.clicks(refreshButton).map(new Func1<OnClickEvent, RxAdapterEvent<Long, String>>() {
+        Observable<Event<Long, String>> updateEvents = ViewObservable.clicks(refreshButton).map(new Func1<OnClickEvent, Event<Long, String>>() {
             @Override
-            public RxAdapterEvent<Long, String> call(OnClickEvent onClickEvent) {
+            public Event<Long, String> call(OnClickEvent onClickEvent) {
                 // send a new event saying position 0 string becomes random number
-                return new RxAdapterEvent<>(RxAdapterEvent.TYPE.ADD, 1L, Integer.toString(random.nextInt()));
+                return new Event<>(Event.TYPE.ADD, 1L, Integer.toString(random.nextInt()));
             }
         });
 
         Observable.merge(createEvents, updateEvents).subscribe(ObjectModel.getInstance().getEventObserver());
 
-        Adapter adapter = new Adapter(ObjectModel.getInstance().getEventObservable(), adapterComparator);
+        Adapter adapter = new Adapter(ObjectModel.getInstance().getEventObservable().lift(new ElementGenerationOperator<>(adapterComparator)));
         recyclerView.setAdapter(adapter);
 
         ViewObservable.clicks(anotherActivityButton).forEach(new Action1<OnClickEvent>() {
