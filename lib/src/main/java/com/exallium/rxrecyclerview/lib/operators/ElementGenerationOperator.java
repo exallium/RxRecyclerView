@@ -104,7 +104,7 @@ public class ElementGenerationOperator<K, V> implements Observable.Operator<Even
                             }
                             break;
                         case REMOVE:
-                            groupMap.put(groupKey, Math.min(0, groupSize - 1));
+                            groupMap.put(groupKey, Math.max(0, groupSize - 1));
                             if (groupMap.get(groupKey) == 0) {
                                 groupMap.remove(groupKey);
                                 if (hasHeader) subscriber.onNext(new HeaderElement<>(event, groupComparator));
