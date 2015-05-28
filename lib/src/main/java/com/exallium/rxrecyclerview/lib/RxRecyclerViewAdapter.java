@@ -25,18 +25,14 @@
 package com.exallium.rxrecyclerview.lib;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.ArrayMap;
 import android.util.Log;
 import com.exallium.rxrecyclerview.lib.container.Container;
 import com.exallium.rxrecyclerview.lib.container.impl.DefaultContainer;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.subjects.PublishSubject;
 
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 
 /**
  * Reactive View Adapter for RecyclerView
