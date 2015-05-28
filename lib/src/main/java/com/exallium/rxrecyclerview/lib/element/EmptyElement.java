@@ -34,6 +34,6 @@ public class EmptyElement<K, V> extends EventElement<K, V> {
 
     @Override
     public int getViewType() {
-        return 3;
+        return VIEW_TYPE_EMPTY;
     }
 }

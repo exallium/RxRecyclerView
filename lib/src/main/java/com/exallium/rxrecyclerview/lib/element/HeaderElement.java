@@ -34,7 +34,7 @@ public class HeaderElement<K, V> extends EventElement<K, V> {
 
     @Override
     public int getViewType() {
-        return 2;
+        return VIEW_TYPE_HEADER;
     }
 
     @Override

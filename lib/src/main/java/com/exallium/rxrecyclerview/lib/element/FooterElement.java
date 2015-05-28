@@ -35,7 +35,7 @@ public class FooterElement<K, V> extends EventElement<K, V> {
 
     @Override
     public int getViewType() {
-        return 1;
+        return VIEW_TYPE_FOOTER;
     }
 
     @Override

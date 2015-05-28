@@ -25,6 +25,13 @@
 package com.exallium.rxrecyclerview.lib.element;
 
 public interface Element<D> extends Comparable<Element<D>> {
+
+    int VIEW_TYPE_DATA = 0;
+    int VIEW_TYPE_HEADER = 1;
+    int VIEW_TYPE_FOOTER = 2;
+    int VIEW_TYPE_EMPTY = 3;
+
+
     String getGroup();
     int getViewType();
     D getData();

@@ -44,7 +44,7 @@ public class EventElement<K, V> implements Element<Event<K, V>> {
 
     @Override
     public int getViewType() {
-        return 0;
+        return VIEW_TYPE_DATA;
     }
 
     @Override
@@ -59,6 +59,13 @@ public class EventElement<K, V> implements Element<Event<K, V>> {
         if (groupComparison != 0) {
             return groupComparison;
         }
+
+        // We are always after header elements and before footer elements
+        if (another.getViewType() == VIEW_TYPE_HEADER)
+            return 1;
+        if (another.getViewType() == VIEW_TYPE_FOOTER)
+            return -1;
+
         return eventGroupComparator.compare(getData(), another.getData());
     }
 }

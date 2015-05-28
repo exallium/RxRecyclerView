@@ -31,6 +31,8 @@ import android.widget.TextView;
 import com.exallium.rxrecyclerview.app.model.ObjectModel;
 import com.exallium.rxrecyclerview.lib.element.Element;
 import com.exallium.rxrecyclerview.lib.element.EventElement;
+import com.exallium.rxrecyclerview.lib.element.FooterElement;
+import com.exallium.rxrecyclerview.lib.element.HeaderElement;
 import com.exallium.rxrecyclerview.lib.event.Event;
 import com.exallium.rxrecyclerview.lib.RxRecyclerViewAdapter;
 import rx.Observable;
@@ -45,7 +47,17 @@ public class Adapter extends RxRecyclerViewAdapter<Long, String, Adapter.ViewHol
 
     @Override
     public void onBindViewHolder(ViewHolder holder, Element<Event<Long, String>> element) {
-        holder.onBind(element.getData().getKey(), element.getData().getValue());
+        switch (element.getViewType()) {
+            case Element.VIEW_TYPE_HEADER:
+                holder.onBind(element.getData().getKey(), "HEADER");
+                break;
+            case Element.VIEW_TYPE_FOOTER:
+                holder.onBind(element.getData().getKey(), "FOOTER");
+                break;
+            case Element.VIEW_TYPE_DATA:
+                holder.onBind(element.getData().getKey(), element.getData().getValue());
+                break;
+        }
     }
 
     @Override

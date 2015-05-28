@@ -69,7 +69,7 @@ public class MainActivity extends Activity {
 
         @Override
         public int compare(Event<Long, String> lhs, Event<Long, String> rhs) {
-            return -(lhs.getKey().compareTo(rhs.getKey()));
+            return lhs.getKey().compareTo(rhs.getKey());
         }
     };
 
@@ -102,7 +102,11 @@ public class MainActivity extends Activity {
 
         Observable.merge(createEvents, updateEvents).subscribe(ObjectModel.getInstance().getEventObserver());
 
-        Adapter adapter = new Adapter(ObjectModel.getInstance().getEventObservable().lift(new ElementGenerationOperator<>(adapterComparator)));
+        Adapter adapter = new Adapter(ObjectModel
+                .getInstance()
+                .getEventObservable()
+                .lift(new ElementGenerationOperator.Builder<>(adapterComparator)
+                        .hasHeader(true).build()));
         recyclerView.setAdapter(adapter);
 
         ViewObservable.clicks(anotherActivityButton).forEach(new Action1<OnClickEvent>() {

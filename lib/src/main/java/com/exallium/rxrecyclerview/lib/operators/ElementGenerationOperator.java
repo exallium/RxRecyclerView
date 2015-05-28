@@ -38,10 +38,39 @@ public class ElementGenerationOperator<K, V> implements Observable.Operator<Even
 
     Map<String, Integer> groupMap = new HashMap<>();
     private final GroupComparator<Event<K, V>> groupComparator;
+    private final boolean hasHeader;
+    private final boolean hasFooter;
 
-    public ElementGenerationOperator(GroupComparator<Event<K, V>> groupComparator) {
-        this.groupComparator = groupComparator;
+    public ElementGenerationOperator(Builder builder) {
+        this.groupComparator = builder.groupComparator;
+        this.hasFooter = builder.hasFooter;
+        this.hasHeader = builder.hasHeader;
     }
+
+    public static class Builder<K, V> {
+        private final GroupComparator<Event<K, V>> groupComparator;
+        private boolean hasHeader = false;
+        private boolean hasFooter = false;
+
+        public Builder(GroupComparator<Event<K, V>> groupComparator) {
+            this.groupComparator = groupComparator;
+        }
+
+        public Builder<K, V> hasHeader(boolean hasHeader) {
+            this.hasHeader = hasHeader;
+            return this;
+        }
+
+        public Builder<K, V> hasFooter(boolean hasFooter) {
+            this.hasFooter = hasFooter;
+            return this;
+        }
+
+        public ElementGenerationOperator<K, V> build() {
+            return new ElementGenerationOperator<>(this);
+        }
+    }
+
 
     @Override
     public Subscriber<? super Event<K, V>> call(final Subscriber<? super EventElement<K, V>> subscriber) {
@@ -69,18 +98,17 @@ public class ElementGenerationOperator<K, V> implements Observable.Operator<Even
                     switch (event.getType()) {
                         case ADD:
                             groupMap.put(groupKey, groupSize + 1);
-                            subscriber.onNext(new EmptyElement<>(event, groupComparator));
                             if (groupSize == 0) {
-                                subscriber.onNext(new HeaderElement<>(event, groupComparator));
-                                subscriber.onNext(new FooterElement<>(event, groupComparator));
+                                if (hasHeader) subscriber.onNext(new HeaderElement<>(event, groupComparator));
+                                if (hasFooter) subscriber.onNext(new FooterElement<>(event, groupComparator));
                             }
                             break;
                         case REMOVE:
                             groupMap.put(groupKey, Math.min(0, groupSize - 1));
                             if (groupMap.get(groupKey) == 0) {
                                 groupMap.remove(groupKey);
-                                subscriber.onNext(new HeaderElement<>(event, groupComparator));
-                                subscriber.onNext(new FooterElement<>(event, groupComparator));
+                                if (hasHeader) subscriber.onNext(new HeaderElement<>(event, groupComparator));
+                                if (hasFooter) subscriber.onNext(new FooterElement<>(event, groupComparator));
                             }
                             break;
                     }
