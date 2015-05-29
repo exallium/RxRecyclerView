@@ -26,9 +26,7 @@ package com.exallium.rxrecyclerview.lib;
 
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import com.exallium.rxrecyclerview.lib.element.Element;
 import com.exallium.rxrecyclerview.lib.element.EventElement;
-import com.exallium.rxrecyclerview.lib.event.Event;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -52,7 +50,7 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
 
     private static final String TAG = RxRecyclerViewAdapter.class.getSimpleName();
 
-    private final TreeSet<Element<Event<K, V>>> treeSet;
+    private final TreeSet<EventElement<K, V>> treeSet;
 
     /**
      * Takes an observable of RxAdapterEvents.  See example in MainActivity in sample app.
@@ -80,7 +78,7 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
      * Binds a ViewHolder to the given Key/Value pair
      * @param holder    The ViewHolder to bind to
      */
-    public abstract void onBindViewHolder(VH holder, Element<Event<K, V>> element);
+    public abstract void onBindViewHolder(VH holder, EventElement<K, V> element);
 
     @Override
     public int getItemCount() {

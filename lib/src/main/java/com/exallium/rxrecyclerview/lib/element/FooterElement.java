@@ -39,7 +39,7 @@ public class FooterElement<K, V> extends EventElement<K, V> {
     }
 
     @Override
-    public int compareTo(Element<Event<K, V>> another) {
+    public int compareTo(EventElement<K, V> another) {
         int groupComparison = getGroup().compareTo(another.getGroup());
         if (groupComparison != 0) {
             return groupComparison;

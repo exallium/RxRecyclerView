@@ -27,7 +27,12 @@ package com.exallium.rxrecyclerview.lib.element;
 import com.exallium.rxrecyclerview.lib.GroupComparator;
 import com.exallium.rxrecyclerview.lib.event.Event;
 
-public class EventElement<K, V> implements Element<Event<K, V>> {
+public class EventElement<K, V> implements Comparable<EventElement<K, V>> {
+
+    public static final int VIEW_TYPE_DATA = 0;
+    public static final int VIEW_TYPE_HEADER = 1;
+    public static final int VIEW_TYPE_FOOTER = 2;
+    public static final int VIEW_TYPE_EMPTY = 3;
 
     private final Event<K, V> event;
     private final GroupComparator<Event<K, V>> eventGroupComparator;
@@ -37,24 +42,20 @@ public class EventElement<K, V> implements Element<Event<K, V>> {
         this.eventGroupComparator = groupComparator;
     }
 
-    @Override
     public String getGroup() {
         return eventGroupComparator.getGroupKey(event);
     }
 
-    @Override
     public int getViewType() {
         return VIEW_TYPE_DATA;
     }
 
-    @Override
     public Event<K, V> getData() {
         return event;
     }
 
 
-    @Override
-    public int compareTo(Element<Event<K, V>> another) {
+    public int compareTo(EventElement<K, V> another) {
         int groupComparison = getGroup().compareTo(another.getGroup());
         if (groupComparison != 0) {
             return groupComparison;
