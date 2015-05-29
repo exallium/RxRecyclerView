@@ -2,6 +2,8 @@
 
 Crazy easy to use RecyclerView Adapter for Reactive Applications
 
+![Data Flow Visualization](http://i.imgur.com/SxDOIyB.png)
+
 ## Interface
 
 * ```RxRecyclerViewAdapter::onCreateViewHolder``` is the same as ```RecyclerView.Adapter```
