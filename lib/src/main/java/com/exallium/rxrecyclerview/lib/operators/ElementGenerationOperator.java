@@ -37,22 +37,25 @@ import java.util.TreeMap;
 public class ElementGenerationOperator<K, V> implements Observable.Operator<EventElement<K, V>, Event<K, V>> {
 
     Map<String, Integer> groupMap = new HashMap<>();
-    private final GroupComparator<Event<K, V>> groupComparator;
+    private final GroupComparator<K, V> groupComparator;
     private final boolean hasHeader;
     private final boolean hasFooter;
+    private final boolean hasEmpty;
 
     public ElementGenerationOperator(Builder builder) {
         this.groupComparator = builder.groupComparator;
         this.hasFooter = builder.hasFooter;
         this.hasHeader = builder.hasHeader;
+        this.hasEmpty = builder.hasEmpty;
     }
 
     public static class Builder<K, V> {
-        private final GroupComparator<Event<K, V>> groupComparator;
+        private final GroupComparator<K, V> groupComparator;
         private boolean hasHeader = false;
         private boolean hasFooter = false;
+        private boolean hasEmpty = false;
 
-        public Builder(GroupComparator<Event<K, V>> groupComparator) {
+        public Builder(GroupComparator<K, V> groupComparator) {
             this.groupComparator = groupComparator;
         }
 
@@ -66,6 +69,11 @@ public class ElementGenerationOperator<K, V> implements Observable.Operator<Even
             return this;
         }
 
+        public Builder<K, V> hasEmpty(boolean hasEmpty) {
+            this.hasEmpty = hasEmpty;
+            return this;
+        }
+
         public ElementGenerationOperator<K, V> build() {
             return new ElementGenerationOperator<>(this);
         }
@@ -75,6 +83,13 @@ public class ElementGenerationOperator<K, V> implements Observable.Operator<Even
     @Override
     public Subscriber<? super Event<K, V>> call(final Subscriber<? super EventElement<K, V>> subscriber) {
         return new Subscriber<Event<K, V>>() {
+
+            @Override
+            public void onStart() {
+                if (!subscriber.isUnsubscribed() && hasEmpty)
+                    subscriber.onNext(new EmptyElement<>(groupComparator.getEmptyEvent(Event.TYPE.ADD), groupComparator));
+            }
+
             @Override
             public void onCompleted() {
                 if (!subscriber.isUnsubscribed())
@@ -96,12 +111,16 @@ public class ElementGenerationOperator<K, V> implements Observable.Operator<Even
                     final int groupSize = groupMap.containsKey(groupKey) ? groupMap.get(groupKey) : 0;
 
                     switch (event.getType()) {
+
                         case ADD:
+                            int startSize = groupMap.size();
                             groupMap.put(groupKey, groupSize + 1);
                             if (groupSize == 0) {
                                 if (hasHeader) subscriber.onNext(new HeaderElement<>(event, groupComparator));
                                 if (hasFooter) subscriber.onNext(new FooterElement<>(event, groupComparator));
                             }
+                            if (hasEmpty && startSize == 0)
+                                subscriber.onNext(new EmptyElement<>(groupComparator.getEmptyEvent(Event.TYPE.REMOVE), groupComparator));
                             break;
                         case REMOVE:
                             groupMap.put(groupKey, Math.max(0, groupSize - 1));
@@ -110,10 +129,10 @@ public class ElementGenerationOperator<K, V> implements Observable.Operator<Even
                                 if (hasHeader) subscriber.onNext(new HeaderElement<>(event, groupComparator));
                                 if (hasFooter) subscriber.onNext(new FooterElement<>(event, groupComparator));
                             }
+                            if (hasEmpty && groupMap.size() == 0)
+                                subscriber.onNext(new EmptyElement<>(groupComparator.getEmptyEvent(Event.TYPE.ADD), groupComparator));
                             break;
                     }
-
-
                 }
             }
         };

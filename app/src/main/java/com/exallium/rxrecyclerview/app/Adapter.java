@@ -42,17 +42,22 @@ public class Adapter extends RxRecyclerViewAdapter<Long, String, Adapter.ViewHol
 
     @Override
     public void onBindViewHolder(ViewHolder holder, EventElement<Long, String> element) {
+        final String dataString;
         switch (element.getViewType() >> EventElement.MASK_SHIFT) {
+            case EventElement.EMPTY_MASK:
+                dataString = "EMPTY";
+                break;
             case EventElement.HEADER_MASK:
-                holder.onBind(element.getData().getKey(), "HEADER");
+                dataString = "HEADER";
                 break;
             case EventElement.FOOTER_MASK:
-                holder.onBind(element.getData().getKey(), "FOOTER");
+                dataString = "FOOTER";
                 break;
-            case EventElement.DATA_MASK:
-                holder.onBind(element.getData().getKey(), element.getData().getValue());
+            default:
+                dataString = element.getData().getValue();
                 break;
         }
+        holder.onBind(element.getData().getKey(), dataString, element.getViewType() >> EventElement.MASK_SHIFT);
     }
 
     @Override
@@ -68,13 +73,13 @@ public class Adapter extends RxRecyclerViewAdapter<Long, String, Adapter.ViewHol
 
         public ViewHolder(View itemView) {
             super(itemView);
-            itemView.setOnClickListener(this);
         }
 
-        public void onBind(Long key, String value) {
+        public void onBind(Long key, String value, int viewMask) {
             ((TextView)itemView).setText(String.format("%d - %s", key, value));
             this.key = key;
             this.value = value;
+            itemView.setOnClickListener(viewMask == EventElement.DATA_MASK ? this : null);
         }
 
         @Override

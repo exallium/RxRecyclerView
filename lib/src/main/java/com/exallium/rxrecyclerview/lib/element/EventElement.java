@@ -38,9 +38,9 @@ public class EventElement<K, V> implements Comparable<EventElement<K, V>> {
     public static final int EMPTY_MASK = 3;     // 11
 
     private final Event<K, V> event;
-    private final GroupComparator<Event<K, V>> eventGroupComparator;
+    private final GroupComparator<K, V> eventGroupComparator;
 
-    public EventElement(Event<K, V> event, GroupComparator<Event<K, V>> groupComparator) {
+    public EventElement(Event<K, V> event, GroupComparator<K, V> groupComparator) {
         this.event = event;
         this.eventGroupComparator = groupComparator;
     }

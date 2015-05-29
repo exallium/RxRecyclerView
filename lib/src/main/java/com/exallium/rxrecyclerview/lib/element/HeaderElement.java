@@ -28,7 +28,7 @@ import com.exallium.rxrecyclerview.lib.GroupComparator;
 import com.exallium.rxrecyclerview.lib.event.Event;
 
 public class HeaderElement<K, V> extends EventElement<K, V> {
-    public HeaderElement(Event<K, V> event, GroupComparator<Event<K, V>> groupComparator) {
+    public HeaderElement(Event<K, V> event, GroupComparator<K, V> groupComparator) {
         super(event, groupComparator);
     }
 

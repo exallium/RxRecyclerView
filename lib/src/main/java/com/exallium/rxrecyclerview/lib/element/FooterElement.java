@@ -29,7 +29,7 @@ import com.exallium.rxrecyclerview.lib.event.Event;
 
 public class FooterElement<K, V> extends EventElement<K, V> {
 
-    public FooterElement(Event<K, V> event, GroupComparator<Event<K, V>> groupComparator) {
+    public FooterElement(Event<K, V> event, GroupComparator<K, V> groupComparator) {
         super(event, groupComparator);
     }
 

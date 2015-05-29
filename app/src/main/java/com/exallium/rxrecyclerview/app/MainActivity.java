@@ -61,10 +61,17 @@ public class MainActivity extends Activity {
     @InjectView(R.id.anotherActivityButton)
     Button anotherActivityButton;
 
-    private final GroupComparator<Event<Long, String>> adapterComparator = new GroupComparator<Event<Long, String>>() {
+    private final GroupComparator<Long, String> adapterComparator = new GroupComparator<Long, String>() {
         @Override
         public String getGroupKey(Event<Long, String> longStringEvent) {
-            return longStringEvent.getKey().toString().substring(0,1);
+            if (longStringEvent.getKey() != null)
+                return longStringEvent.getKey().toString().substring(0,1);
+            return "EMPTY";
+        }
+
+        @Override
+        public Event<Long, String> getEmptyEvent(Event.TYPE eventType) {
+            return new Event<>(eventType, 0L, "EMPTY");
         }
 
         @Override
@@ -106,7 +113,7 @@ public class MainActivity extends Activity {
                 .getInstance()
                 .getEventObservable()
                 .lift(new ElementGenerationOperator.Builder<>(adapterComparator)
-                        .hasHeader(true).build()));
+                        .hasHeader(true).hasEmpty(true).build()));
         recyclerView.setAdapter(adapter);
 
         ViewObservable.clicks(anotherActivityButton).forEach(new Action1<OnClickEvent>() {

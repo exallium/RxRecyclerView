@@ -24,8 +24,11 @@
 
 package com.exallium.rxrecyclerview.lib;
 
+import com.exallium.rxrecyclerview.lib.event.Event;
+
 import java.util.Comparator;
 
-public interface GroupComparator<T> extends Comparator<T> {
-    String getGroupKey(T t);
+public interface GroupComparator<K, V> extends Comparator<Event<K, V>> {
+    String getGroupKey(Event<K, V> event);
+    Event<K, V> getEmptyEvent(Event.TYPE eventType);
 }
