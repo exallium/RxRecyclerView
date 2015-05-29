@@ -34,7 +34,7 @@ public class HeaderElement<K, V> extends EventElement<K, V> {
 
     @Override
     public int getViewType() {
-        return VIEW_TYPE_HEADER;
+        return HEADER_MASK << MASK_SHIFT;
     }
 
     @Override
@@ -43,6 +43,10 @@ public class HeaderElement<K, V> extends EventElement<K, V> {
         if (groupComparison != 0) {
             return groupComparison;
         }
+
+        if (another.getViewType() == getViewType())
+            return 0;
+
         return -1;
     }
 }

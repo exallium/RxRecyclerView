@@ -29,10 +29,13 @@ import com.exallium.rxrecyclerview.lib.event.Event;
 
 public class EventElement<K, V> implements Comparable<EventElement<K, V>> {
 
-    public static final int VIEW_TYPE_DATA = 0;
-    public static final int VIEW_TYPE_HEADER = 1;
-    public static final int VIEW_TYPE_FOOTER = 2;
-    public static final int VIEW_TYPE_EMPTY = 3;
+    // Max supported viewtypes per mask is 1024, including the default
+    public static final int MASK_SHIFT = 10;
+
+    public static final int DATA_MASK = 0;      // 00
+    public static final int HEADER_MASK = 1;    // 01
+    public static final int FOOTER_MASK = 2;    // 10
+    public static final int EMPTY_MASK = 3;     // 11
 
     private final Event<K, V> event;
     private final GroupComparator<Event<K, V>> eventGroupComparator;
@@ -47,7 +50,7 @@ public class EventElement<K, V> implements Comparable<EventElement<K, V>> {
     }
 
     public int getViewType() {
-        return VIEW_TYPE_DATA;
+        return DATA_MASK;
     }
 
     public Event<K, V> getData() {
@@ -62,9 +65,9 @@ public class EventElement<K, V> implements Comparable<EventElement<K, V>> {
         }
 
         // We are always after header elements and before footer elements
-        if (another.getViewType() == VIEW_TYPE_HEADER)
+        if (another.getViewType() >> MASK_SHIFT == HEADER_MASK)
             return 1;
-        if (another.getViewType() == VIEW_TYPE_FOOTER)
+        if (another.getViewType() >> MASK_SHIFT == FOOTER_MASK)
             return -1;
 
         return eventGroupComparator.compare(getData(), another.getData());

@@ -35,7 +35,7 @@ public class FooterElement<K, V> extends EventElement<K, V> {
 
     @Override
     public int getViewType() {
-        return VIEW_TYPE_FOOTER;
+        return FOOTER_MASK << MASK_SHIFT;
     }
 
     @Override
@@ -44,6 +44,10 @@ public class FooterElement<K, V> extends EventElement<K, V> {
         if (groupComparison != 0) {
             return groupComparison;
         }
+
+        if (another.getViewType() == getViewType())
+            return 0;
+
         return 1;
     }
 }

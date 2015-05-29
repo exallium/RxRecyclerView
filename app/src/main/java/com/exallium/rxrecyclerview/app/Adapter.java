@@ -42,14 +42,14 @@ public class Adapter extends RxRecyclerViewAdapter<Long, String, Adapter.ViewHol
 
     @Override
     public void onBindViewHolder(ViewHolder holder, EventElement<Long, String> element) {
-        switch (element.getViewType()) {
-            case EventElement.VIEW_TYPE_HEADER:
+        switch (element.getViewType() >> EventElement.MASK_SHIFT) {
+            case EventElement.HEADER_MASK:
                 holder.onBind(element.getData().getKey(), "HEADER");
                 break;
-            case EventElement.VIEW_TYPE_FOOTER:
+            case EventElement.FOOTER_MASK:
                 holder.onBind(element.getData().getKey(), "FOOTER");
                 break;
-            case EventElement.VIEW_TYPE_DATA:
+            case EventElement.DATA_MASK:
                 holder.onBind(element.getData().getKey(), element.getData().getValue());
                 break;
         }

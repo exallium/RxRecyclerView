@@ -34,6 +34,6 @@ public class EmptyElement<K, V> extends EventElement<K, V> {
 
     @Override
     public int getViewType() {
-        return VIEW_TYPE_EMPTY;
+        return EMPTY_MASK << MASK_SHIFT;
     }
 }

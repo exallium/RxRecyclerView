@@ -26,6 +26,17 @@ which will then add in Header and Footer items, as well as handle Empty items
 per your provided Options.  The Adapter uses a TreeSet internally, which allows
 for automatic sorting by natural keys (Elements subclass Comparator)
 
+## View Types
+
+You can create your own new view types by extending the appropriate EventElement subclass, or EventElement
+itself.  Each View type has a corresponding bit mask that are placed in the 11th and 12th bits of the 
+View type integer.  This means that when you want to know what kind of view you are looking at, you can
+simply shift it's view type like so: ```element.getViewType() >> EventElement.MASK_SHIFT``` and compare it
+to the defined static integer masks within ```EventElement```.  This allows you to do things like create
+your own Header elements and whatnot, with unique viewtypes, and rest assured that they'll work properly.
+
+This system allows us to avoid using instanceof calls everywhere, and stick to switch cases.
+
 ## Examples
 
 Are available in the app module!
