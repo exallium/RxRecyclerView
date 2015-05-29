@@ -24,20 +24,8 @@
 
 package com.exallium.rxrecyclerview.lib.event;
 
-import rx.functions.Func1;
-
 /**
  * Immutable Event for adapter change.
- *
- * If you would like to extend this object, the recommended way is to define a subclass with TYPE UNKNOWN.  You can then
- * filter the incoming observable within your adapter for this subclass.  Since you are required to define your types
- * when you declare your adapter, K and V will be known, so a non-parameterized Subclass is an option here.  If you
- * really need parameterized subclasses otherwise, my recommendation is to do something along the same lines as I did
- * here with Type, OR figure out the proper generics typing for the RX Java Methods to like your subscribers.
- *
- * You can listen to a custom subclass in your adapter constructor with observer.ofType(), or you can create a Filter
- * as I have done in this class an event's subtype against a type passed by constructor. (See RxRecyclerViewAdapter.java for
- * an example, and RxAdapterEvent.TypeFilter for an example)
  *
  * @param <K> The Key for this object (such as an ID number)
  * @param <V> The Value for this object (The object itself)
@@ -47,7 +35,6 @@ public class Event<K, V> {
     public enum TYPE {
         ADD,        // Used when Adding content to an RxRecyclerView
         REMOVE,     // Used when Removing content from an RxRecyclerView
-        UNKNOWN     // Used for custom events
     }
 
     private final TYPE type;

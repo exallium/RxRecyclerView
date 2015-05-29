@@ -24,7 +24,7 @@ There is an interface called GroupComparator that lets you sort and group your
 Events.  These are passed to an instance of ```ElementGenerationOperator```
 which will then add in Header and Footer items, as well as handle Empty items
 per your provided Options.  The Adapter uses a TreeSet internally, which allows
-for automatic sorting by natural keys (Elements subclass Comparator)
+for automatic sorting by natural keys (Elements subclass Comparator).
 
 ## View Types
 

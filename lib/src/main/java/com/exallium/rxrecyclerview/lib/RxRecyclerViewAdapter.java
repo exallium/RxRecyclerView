@@ -75,7 +75,7 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
     }
 
     /**
-     * Binds a ViewHolder to the given Key/Value pair
+     * Binds a ViewHolder to the given EventElement
      * @param holder    The ViewHolder to bind to
      */
     public abstract void onBindViewHolder(VH holder, EventElement<K, V> element);

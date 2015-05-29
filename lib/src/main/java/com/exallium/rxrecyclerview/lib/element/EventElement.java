@@ -27,6 +27,16 @@ package com.exallium.rxrecyclerview.lib.element;
 import com.exallium.rxrecyclerview.lib.GroupComparator;
 import com.exallium.rxrecyclerview.lib.event.Event;
 
+/**
+ * An Event Element contains an Event and a View Type for on screen rendering.  It is comparable to other
+ * elements for sorting.
+ *
+ * There are 4 types of Elements.  Data elements, Headers, Footers, and Empty.  Each has a mask, so that
+ * you can subclass and create new Elements.
+ *
+ * @param <K>   The Event Key
+ * @param <V>   The Event Value
+ */
 public class EventElement<K, V> implements Comparable<EventElement<K, V>> {
 
     // Max supported viewtypes per mask is 1024, including the default
@@ -45,19 +55,32 @@ public class EventElement<K, V> implements Comparable<EventElement<K, V>> {
         this.eventGroupComparator = groupComparator;
     }
 
-    public String getGroup() {
+    /**
+     * @return The Group Key for the Wrapped Event
+     */
+    public final String getGroup() {
         return eventGroupComparator.getGroupKey(event);
     }
 
+    /**
+     * @return The Datatype for this Element. See Class Documentation
+     */
     public int getViewType() {
         return DATA_MASK;
     }
 
-    public Event<K, V> getData() {
+    /**
+     * @return The wrapped Event
+     */
+    public final Event<K, V> getData() {
         return event;
     }
 
-
+    /**
+     * Compare us to another Element
+     * @param another The other element
+     * @return Comparator result (-1, 0, 1)
+     */
     public int compareTo(EventElement<K, V> another) {
         int groupComparison = getGroup().compareTo(another.getGroup());
         if (groupComparison != 0) {

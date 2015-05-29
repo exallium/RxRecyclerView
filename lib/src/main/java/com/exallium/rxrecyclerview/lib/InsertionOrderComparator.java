@@ -26,25 +26,40 @@ package com.exallium.rxrecyclerview.lib;
 
 import com.exallium.rxrecyclerview.lib.event.Event;
 
-import java.util.Comparator;
-
 /**
- * Allows for easy Grouping and Sorting of Events and their Internal Data
- * @param <K> The Event Key
- * @param <V> The Event Value
+ * Group Comparator that allows for easy "default" insertion order.
+ * I recommend using System.currentTimeMillis as your Key value.
+ * This will guarentee insertion order.
+ *
+ * Headers and footers will not and are not designed to work with this.  This is
+ * only for those times when you don't want sorted data to be displayed.
+ *
+ * @param <V> The Value of data we are inserting
  */
-public interface GroupComparator<K, V> extends Comparator<Event<K, V>> {
-    /**
-     * Given an Event in a group, get the group key associated with it.
-     * @param event The event we are analyzing
-     * @return A string representing the group key.
-     */
-    String getGroupKey(Event<K, V> event);
+public class InsertionOrderComparator<V> implements GroupComparator<Long, V> {
+    @Override
+    public final String getGroupKey(Event<Long, V> event) {
+        return event.getKey().toString();
+    }
 
     /**
-     * Generate an empty event. Can return null if you don't plan to support an empty view.
-     * @param eventType The type of event to generate
-     * @return a new instance of event or null
+     * Returns an event with -1L as Key and null as value.
+     * @param eventType ADD or REMOVE
+     * @return an event to throw into an EmptyElement
      */
-    Event<K, V> getEmptyEvent(Event.TYPE eventType);
+    @Override
+    public Event<Long, V> getEmptyEvent(Event.TYPE eventType) {
+        return new Event<>(eventType, -1L, null);
+    }
+
+    /**
+     * Default compare.  Override for reverse or what have you.
+     * @param lhs Event we have
+     * @param rhs Event we compare to
+     * @return -1, 0, 1 based off comparison.
+     */
+    @Override
+    public int compare(Event<Long, V> lhs, Event<Long, V> rhs) {
+        return lhs.getKey().compareTo(rhs.getKey());
+    }
 }
