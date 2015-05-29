@@ -10,6 +10,8 @@ Crazy easy to use RecyclerView Adapter for Reactive Applications
 * ```Event<K,V>``` is Immutable and takes an ```Event.TYPE```, Key, and Value.
 * ```Event<K,V>``` also contains an UNKNOWN type and is overridable for custom
   processing.
+* ```EventElement<K,V>``` and it's subclasses wrap Events and contain a view
+  type for easy addition of headers, footers, and "list is empty" view.
 
 ## Creating an Adapter
 
@@ -20,7 +22,7 @@ conversion for you.
 
 ## Sorting and Grouping your stuff
 
-There is an interface called GroupComparator that lets you sort and group your
+There is an interface called ```GroupComparator``` that lets you sort and group your
 Events.  These are passed to an instance of ```ElementGenerationOperator```
 which will then add in Header and Footer items, as well as handle Empty items
 per your provided Options.  The Adapter uses a TreeSet internally, which allows
