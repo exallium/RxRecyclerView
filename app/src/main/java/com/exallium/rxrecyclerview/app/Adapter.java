@@ -25,6 +25,7 @@
 package com.exallium.rxrecyclerview.app;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -35,6 +36,7 @@ import com.exallium.rxrecyclerview.lib.RxRecyclerViewAdapter;
 import rx.Observable;
 
 public class Adapter extends RxRecyclerViewAdapter<Long, String, Adapter.ViewHolder> {
+    private static final String TAG = Adapter.class.getSimpleName();
 
     public Adapter(Observable<EventElement<Long, String>> observable) {
         super(observable);
@@ -65,6 +67,32 @@ public class Adapter extends RxRecyclerViewAdapter<Long, String, Adapter.ViewHol
         return new ViewHolder(new TextView(parent.getContext()));
     }
 
+    @Override
+    protected void postProcessElement(EventElement<Long, String> element) {
+        Log.d(TAG, String.format("POST PROCESS ELEMENT %d - %s",
+                element.getData().getKey(), element.getData().getValue()));
+    }
+
+    @Override
+    protected void preProcessElement(EventElement<Long, String> element) {
+        Log.d(TAG, String.format("PRE PROCESS ELEMENT %d - %s",
+                element.getData().getKey(), element.getData().getValue()));
+        final int indexOf = getIndexOf(element);
+        if (indexOf != -1) {
+            switch (element.getData().getType()) {
+                case ADD:
+                    final EventElement<Long, String> oldElement = getItemAt(indexOf);
+                    Log.d(TAG, String.format("REPLACE ELEMENT %d - %s",
+                            oldElement.getData().getKey(), oldElement.getData().getValue()));
+                    break;
+                case REMOVE:
+                    Log.d(TAG, String.format("REMOVE ELEMENT %d - %s",
+                            element.getData().getKey(), element.getData().getValue()));
+                    break;
+                default:
+            }
+        }
+    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 

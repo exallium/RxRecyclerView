@@ -81,19 +81,41 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
     public abstract void onBindViewHolder(VH holder, EventElement<K, V> element);
 
     @Override
-    public int getItemCount() {
+    public final int getItemCount() {
         return treeSet.size();
     }
 
     @Override
-    public int getItemViewType(int position) {
+    public final int getItemViewType(int position) {
         return getItemAt(position).getViewType();
     }
 
     // TODO: Performance
-    protected EventElement<K, V> getItemAt(int position) {
+    protected final EventElement<K, V> getItemAt(int position) {
         return (EventElement<K, V>) treeSet.toArray()[position];
     }
+
+    /**
+     * @param element The element to find
+     * @return -1 if the item does not exist in the set, otherwise the element's index
+     */
+    protected final int getIndexOf(EventElement<K, V> element) {
+        return treeSet.contains(element) ? treeSet.headSet(element).size() : -1;
+    }
+
+    /**
+     * Happens before an item is Added or Removed from the list. At this point, you can
+     * get the original item via use of getItemAt and getIndexOf.
+     * @param element The element we are adding or removing
+     */
+    protected void preProcessElement(EventElement<K, V> element) { }
+
+    /**
+     * Happens after an item is Added or Removed from the list.  At this point the original
+     * item is no longer available.
+     * @param element The element we added or removed
+     */
+    protected void postProcessElement(EventElement<K, V> element) { }
 
     private class RxSubscriber extends Subscriber<EventElement<K, V>> {
 
@@ -109,21 +131,25 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
 
         @Override
         public void onNext(EventElement<K, V> rxEvent) {
+            preProcessElement(rxEvent);
             switch (rxEvent.getData().getType()) {
                 case ADD:
                     if (treeSet.add(rxEvent)) {
-                        notifyItemInserted(treeSet.headSet(rxEvent).size());
+                        notifyItemInserted(getIndexOf(rxEvent));
                     } else {
-                        notifyItemChanged(treeSet.headSet(rxEvent).size());
+                        treeSet.remove(rxEvent);
+                        treeSet.add(rxEvent);
+                        notifyItemChanged(getIndexOf(rxEvent));
                     }
                     break;
                 case REMOVE:
-                    int index = treeSet.headSet(rxEvent).size();
+                    int index = getIndexOf(rxEvent);
                     if (treeSet.remove(rxEvent)) {
                         notifyItemRemoved(index);
                     }
                     break;
             }
+            postProcessElement(rxEvent);
         }
     }
 }
