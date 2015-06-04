@@ -61,6 +61,6 @@ repositories {
 }
 
 dependencies {
-    compile 'com.exallium.rxrecyclerview:lib:2.0'
+    compile 'com.exallium.rxrecyclerview:lib:2.1'
 }
 ```
