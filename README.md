@@ -9,6 +9,8 @@ Crazy easy to use RecyclerView Adapter for Reactive Applications
 * ```RxRecyclerViewAdapter::onCreateViewHolder``` is the same as ```RecyclerView.Adapter```
 * ```RxRecyclerViewAdapter::onBindViewHolder``` gives you the Element you are
   binding to
+* ```RxRecyclerViewAdapter::preProcessElement``` gives you the chance to work with elements before they enter the underlying tree set.
+* ```RxRecyclerViewAdapter::postProcessElement``` gives you the chance to work with elements after the RecyclerView has been notified of the element.
 * ```Event<K,V>``` is Immutable and takes an ```Event.TYPE```, Key, and Value.
 * ```Event<K,V>``` also contains an UNKNOWN type and is overridable for custom
   processing.
