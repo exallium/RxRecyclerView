@@ -43,8 +43,8 @@ repositories {
 }
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    compileSdkVersion 22
+    buildToolsVersion "21.1.2"
     resourcePrefix "rxrecyclerview__"
 
     defaultConfig {
@@ -88,8 +88,8 @@ install {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:22.1.1'
-    compile 'com.android.support:recyclerview-v7:22.1.1'
+    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.android.support:recyclerview-v7:22.2.0'
     compile 'io.reactivex:rxandroid:0.24.0'
 
     testCompile 'junit:junit:4.12'

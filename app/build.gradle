@@ -37,16 +37,23 @@ repositories {
 }
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    compileSdkVersion 22
+    buildToolsVersion "21.1.2"
 
     defaultConfig {
         applicationId "com.exallium.rxrecyclerview.app"
         minSdkVersion 19
-        targetSdkVersion 19
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+    packagingOptions {
+        exclude 'LICENSE.txt'
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -58,5 +65,13 @@ android {
 dependencies {
     compile project(":lib")
     compile 'com.jakewharton:butterknife:6.1.0'
-    compile 'com.android.support:appcompat-v7:22.1.1'
+    compile 'com.android.support:appcompat-v7:22.2.0'
+
+    androidTestCompile 'com.android.support.test:runner:0.3'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2'
+    androidTestCompile ('com.android.support.test.espresso:espresso-contrib:2.2') {
+        exclude group: 'com.android.support', module: 'appcompat'
+        exclude group: 'com.android.support', module: 'support-v4'
+        exclude module: 'recyclerview-v7'
+    }
 }
