@@ -50,6 +50,8 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
 
     private static final String TAG = RxRecyclerViewAdapter.class.getSimpleName();
 
+    private final Map<K, EventElement<K, V>> items = new HashMap<>();
+
     private final TreeSet<EventElement<K, V>> treeSet;
 
     /**
@@ -132,20 +134,31 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
         @Override
         public void onNext(EventElement<K, V> rxEvent) {
             preProcessElement(rxEvent);
+            EventElement<K, V> currentRxEvent = null;
             switch (rxEvent.getData().getType()) {
                 case ADD:
-                    if (treeSet.add(rxEvent)) {
-                        notifyItemInserted(getIndexOf(rxEvent));
-                    } else {
-                        treeSet.remove(rxEvent);
+                    if((currentRxEvent = items.put(rxEvent.getData().getKey(), rxEvent)) != null) {
+                        final int orgPos = getIndexOf(currentRxEvent);
+                        treeSet.remove(currentRxEvent);
                         treeSet.add(rxEvent);
-                        notifyItemChanged(getIndexOf(rxEvent));
+                        final int newPos = getIndexOf(rxEvent);
+                        if(orgPos != newPos) {
+                            notifyItemMoved(orgPos, newPos);
+                        }
+                        notifyItemChanged(newPos);
+                    }
+                    else {
+                        treeSet.add(rxEvent);
+                        notifyItemInserted(getIndexOf(rxEvent));
                     }
                     break;
                 case REMOVE:
-                    int index = getIndexOf(rxEvent);
-                    if (treeSet.remove(rxEvent)) {
-                        notifyItemRemoved(index);
+                    currentRxEvent = items.remove(rxEvent.getData().getKey());
+                    if(currentRxEvent != null) {
+                        int index = getIndexOf(currentRxEvent);
+                        if (treeSet.remove(currentRxEvent)) {
+                            notifyItemRemoved(index);
+                        }
                     }
                     break;
             }
