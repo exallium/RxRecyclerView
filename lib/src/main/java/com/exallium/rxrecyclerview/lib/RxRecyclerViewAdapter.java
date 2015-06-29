@@ -27,6 +27,7 @@ package com.exallium.rxrecyclerview.lib;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import com.exallium.rxrecyclerview.lib.element.EventElement;
+import com.exallium.rxrecyclerview.lib.event.Event;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -136,33 +137,51 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
         @Override
         public void onNext(EventElement<K, V> rxEvent) {
             preProcessElement(rxEvent);
-            EventElement<K, V> currentRxEvent = null;
-            switch (rxEvent.getData().getType()) {
-                case ADD:
-                    if ((currentRxEvent = items.put(rxEvent.getData().getKey(), rxEvent)) != null) {
-                        final int orgPos = getIndexOf(currentRxEvent);
-                        treeSet.remove(currentRxEvent);
-                        treeSet.add(rxEvent);
-                        final int newPos = getIndexOf(rxEvent);
-                        if (orgPos != newPos) {
-                            notifyItemMoved(orgPos, newPos);
-                        }
-                        notifyItemChanged(newPos);
-                    }
-                    else {
+
+            int eventType = rxEvent.getViewType() >> EventElement.MASK_SHIFT;
+            if (eventType == EventElement.HEADER_MASK || eventType == EventElement.FOOTER_MASK) {
+                switch (rxEvent.getData().getType()) {
+                    case ADD:
                         treeSet.add(rxEvent);
                         notifyItemInserted(getIndexOf(rxEvent));
-                    }
-                    break;
-                case REMOVE:
-                    currentRxEvent = items.remove(rxEvent.getData().getKey());
-                    if (currentRxEvent != null) {
-                        int index = getIndexOf(currentRxEvent);
-                        if (treeSet.remove(currentRxEvent)) {
-                            notifyItemRemoved(index);
+                        break;
+                    case REMOVE:
+                        int pos = getIndexOf(rxEvent);
+                        if (pos != -1) {
+                            treeSet.remove(rxEvent);
+                            notifyItemRemoved(pos);
                         }
-                    }
-                    break;
+                        break;
+                }
+            } else {
+                EventElement<K, V> currentRxEvent;
+                switch (rxEvent.getData().getType()) {
+                    case ADD:
+                        if ((currentRxEvent = items.put(rxEvent.getData().getKey(), rxEvent)) != null) {
+                            final int orgPos = getIndexOf(currentRxEvent);
+                            treeSet.remove(currentRxEvent);
+                            treeSet.add(rxEvent);
+                            final int newPos = getIndexOf(rxEvent);
+                            if (orgPos != newPos) {
+                                notifyItemMoved(orgPos, newPos);
+                            }
+                            notifyItemChanged(newPos);
+                        }
+                        else {
+                            treeSet.add(rxEvent);
+                            notifyItemInserted(getIndexOf(rxEvent));
+                        }
+                        break;
+                    case REMOVE:
+                        currentRxEvent = items.remove(rxEvent.getData().getKey());
+                        if (currentRxEvent != null) {
+                            int index = getIndexOf(currentRxEvent);
+                            if (treeSet.remove(currentRxEvent)) {
+                                notifyItemRemoved(index);
+                            }
+                        }
+                        break;
+                }
             }
             postProcessElement(rxEvent);
         }
