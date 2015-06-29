@@ -137,12 +137,12 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
             EventElement<K, V> currentRxEvent = null;
             switch (rxEvent.getData().getType()) {
                 case ADD:
-                    if((currentRxEvent = items.put(rxEvent.getData().getKey(), rxEvent)) != null) {
+                    if ((currentRxEvent = items.put(rxEvent.getData().getKey(), rxEvent)) != null) {
                         final int orgPos = getIndexOf(currentRxEvent);
                         treeSet.remove(currentRxEvent);
                         treeSet.add(rxEvent);
                         final int newPos = getIndexOf(rxEvent);
-                        if(orgPos != newPos) {
+                        if (orgPos != newPos) {
                             notifyItemMoved(orgPos, newPos);
                         }
                         notifyItemChanged(newPos);
@@ -154,7 +154,7 @@ public abstract class RxRecyclerViewAdapter<K, V, VH extends RecyclerView.ViewHo
                     break;
                 case REMOVE:
                     currentRxEvent = items.remove(rxEvent.getData().getKey());
-                    if(currentRxEvent != null) {
+                    if (currentRxEvent != null) {
                         int index = getIndexOf(currentRxEvent);
                         if (treeSet.remove(currentRxEvent)) {
                             notifyItemRemoved(index);
