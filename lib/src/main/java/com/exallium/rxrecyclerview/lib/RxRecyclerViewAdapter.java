@@ -32,6 +32,8 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 
 import java.util.TreeSet;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Reactive View Adapter for RecyclerView
