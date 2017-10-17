@@ -1,3 +1,11 @@
+# NOTE
+
+This library is DEPRECATED and not recommended for utilization, as it uses very old versions of Rx and Gradle.  However, I am leaving it here so that you might be able to draw on some of the concepts if you're implementing your own version, or for you to freely fork and modify / update.
+
+Known issues:
+
+The gradle version / bintray version are super duper old.  Please remove any references to bintray if you clone this yourself, or update them as necessary.
+
 # RxRecyclerViewAdapter Library 2.0
 
 Crazy easy to use RecyclerView Adapter for Reactive Applications
